@@ -8,23 +8,18 @@ automatic code generation for schedulers
 软件架构说明
 
 
-#### 安装教程
+#### 参考说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  项目库里面会新设立：INFO.md文档，用于记录概念基础和参考文档。
+2.  TODO
+3.  TODO
 
 #### 使用说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  TODO
 
 #### 参与贡献
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+1.  TODO
 
 
