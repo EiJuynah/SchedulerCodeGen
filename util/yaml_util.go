@@ -1,15 +1,15 @@
 package util
 
 import (
-	"CodeGenerationGo/Template"
+	"CodeGenerationGo/template"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 )
 
-func ReadYamlConfig(path string) (*Template.MatchExpression, error) {
-	conf := &Template.MatchExpression{}
+func ReadYamlConfig(path string) (*template.MatchExpression, error) {
+	conf := &template.MatchExpression{}
 	if f, err := os.Open(path); err != nil {
 		return nil, err
 	} else {
@@ -23,12 +23,12 @@ func ReadYamlConfig(path string) (*Template.MatchExpression, error) {
 	return conf, nil
 }
 
-func ReadConfigYaml(path string) (*Template.Config, error) {
+func ReadConfigYaml(path string) (*template.Config, error) {
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	var conf Template.Config
+	var conf template.Config
 	err = yaml.Unmarshal(buf, &conf)
 	if err != nil {
 		return nil, fmt.Errorf("in file %q: %v", path, err)

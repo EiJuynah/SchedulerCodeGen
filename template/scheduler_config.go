@@ -1,4 +1,4 @@
-package Template
+package template
 
 type Config struct {
 	ApiVersion string   `yaml:"apiVersion"`

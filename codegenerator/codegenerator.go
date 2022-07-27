@@ -1,14 +1,14 @@
 package codegenerator
 
 import (
-	"CodeGenerationGo/Template"
+	"CodeGenerationGo/template"
 	"CodeGenerationGo/util"
 	"fmt"
 	"regexp"
 	"strconv"
 )
 
-func ParseStatement(statement string) Template.MatchRes {
+func ParseStatement(statement string) template.MatchRes {
 	//Parse the regular expression and return the interpreter if successful
 	//reg1 parses the whole statement
 	//reg2 parses the sub
@@ -21,7 +21,7 @@ func ParseStatement(statement string) Template.MatchRes {
 	result1 := reg1.FindAllStringSubmatch(statement, -1)
 	result2 := reg2.FindAllStringSubmatch(result1[0][6], -1)
 
-	var matchRes Template.MatchRes
+	var matchRes template.MatchRes
 
 	matchRes.Trendrule = result1[0][1]
 	matchRes.Key = result1[0][3]
@@ -38,9 +38,9 @@ func ParseStatement(statement string) Template.MatchRes {
 		fmt.Println("relationship word srr")
 	}
 
-	matches := make([]Template.MatchExpression, 0)
+	matches := make([]template.MatchExpression, 0)
 	for _, element := range result2 {
-		var match Template.MatchExpression
+		var match template.MatchExpression
 		match.Key = element[1]
 		match.Values = append(match.Values, element[2])
 		match.Operator = matchRes.Relationship
@@ -55,8 +55,8 @@ func ParseStatement(statement string) Template.MatchRes {
 	return matchRes
 }
 
-func AffinityInit() Template.Affinity {
-	affinity := Template.Affinity{}
+func AffinityInit() template.Affinity {
+	affinity := template.Affinity{}
 
 	return affinity
 }
