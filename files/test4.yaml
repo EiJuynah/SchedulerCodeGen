@@ -1,0 +1,39 @@
+metadata:
+  name: app_test
+  label:
+    app: app1
+apiVersion: v1
+kind: pod
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        labelSelector:
+          - matchExpressions:
+              - values:
+                  - app2
+                key: app
+                operator: in
+              - values:
+                  - app3
+                key: app
+                operator: notin
+      preferredDuringSchedulingIgnoredDuringExecution:
+        preference:
+          - podAffinityTerm:
+              labelSelector:
+                - matchExpressions:
+                    - values:
+                        - app4
+                      key: app
+                      operator: in
+                    - values:
+                        - app5
+                      key: app
+                      operator: notin
+            weight: 100
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution: [
+      ]
+      preferredDuringSchedulingIgnoredDuringExecution: [
+      ]
