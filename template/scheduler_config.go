@@ -17,14 +17,6 @@ type Container struct {
 	Image string `yaml:"image"`
 }
 
-func GetNewContainer(name string, image string) Container {
-	var container Container
-	container.Name = name
-	container.Image = image
-
-	return container
-}
-
 type LabelSelector struct {
 	MatchExpressions []MatchExpression `yaml:"matchExpressions"`
 }

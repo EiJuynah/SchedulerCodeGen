@@ -60,3 +60,24 @@ func AffinityInit() template.Affinity {
 
 	return affinity
 }
+
+func InsertMatchRes2Affinity(affinity template.Affinity, matchRes template.MatchRes) template.Affinity {
+	var labelSelector template.LabelSelector
+	labelSelector.MatchExpressions = matchRes.MatchExpressions
+
+	if matchRes.Trendrule == "preferred" {
+		var preference template.Perference
+		preference.Weight = matchRes.Weight
+		preference.PodAffinityTerm.LabelSelector = append(
+			preference.PodAffinityTerm.LabelSelector, labelSelector)
+		affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution.Preference = append(
+			affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution.Preference, preference)
+	}
+
+	if matchRes.Trendrule == "required" {
+		affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution.LabelSelector = append(
+			affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution.LabelSelector, labelSelector)
+	}
+
+	return affinity
+}
