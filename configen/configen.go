@@ -1,9 +1,13 @@
-package codegenerator
+package configen
 
 import (
 	"CodeGenerationGo/template"
 	"CodeGenerationGo/util"
+	"bufio"
 	"fmt"
+	"gopkg.in/yaml.v3"
+	"log"
+	"os"
 	"regexp"
 	"strconv"
 )
@@ -80,4 +84,44 @@ func InsertMatchRes2Affinity(affinity template.Affinity, matchRes template.Match
 	}
 
 	return affinity
+}
+
+func InsertAffinity2Yaml(affinity template.Affinity, sourcePath string, outPath string) {
+	config, _ := util.ReadConfigYaml(sourcePath)
+	config.Spec.Affinity = affinity
+	yamlByte, _ := yaml.Marshal(config)
+
+	if err := os.WriteFile(outPath, yamlByte, 0666); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func YamlGen(states []string, sourcePath string, outPath string) {
+	affinity := AffinityInit()
+	for _, state := range states {
+		match := ParseStatement(state)
+		affinity = InsertMatchRes2Affinity(affinity, match)
+	}
+	InsertAffinity2Yaml(affinity, sourcePath, outPath)
+
+}
+func YamlGenbyTxt(statesfile string, sourcePath string, outPath string) {
+	var statements []string
+	file, err := os.Open(statesfile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		statements = append(statements, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	YamlGen(statements, sourcePath, outPath)
+
 }

@@ -1,4 +1,5 @@
-required: app:appA & app:appB,app:appC
-
-
-((required)|(preferred)):\s(\w+):(\w+)\s(&|\^)\s(((\w+):(\w+)),*)+
+required: app:appA & app:appB
+required: app:appA ^ app:appC,app:appD
+preferred:80 app:appA & app:appE
+preferred:60 app:appA & app:appF,app:appG
+preferred:40 app:appA ^ app:apH
