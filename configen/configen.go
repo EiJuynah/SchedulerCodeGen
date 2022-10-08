@@ -84,14 +84,14 @@ func InsertMatchRes2Affinity(affinity v1.Affinity, matchRes template.MatchRes) v
 	}
 
 	if matchRes.Trendrule == "required" {
-		affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution.LabelSelector = append(
+		affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(
 			affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution.LabelSelector, labelSelector)
 	}
 
 	return affinity
 }
 
-func InsertAffinity2Yaml(affinity template.Affinity, sourcePath string, outPath string) {
+func InsertAffinity2Yaml(affinity v1.Affinity, sourcePath string, outPath string) {
 	config, _ := util.ReadConfigYaml(sourcePath)
 	config.Spec.Affinity = affinity
 	yamlByte, _ := yaml.Marshal(config)
