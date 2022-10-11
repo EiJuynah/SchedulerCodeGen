@@ -1,9 +1,5 @@
 package template
 
-import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
-
 //	type Config struct {
 //		ApiVersion string   `yaml:"apiVersion"`
 //		Kind       string   `yaml:"kind"`
@@ -69,8 +65,8 @@ import (
 type MatchRes struct {
 	Trendrule        string
 	Weight           int
-	Relationship     metav1.LabelSelectorOperator
-	Key              string
+	Relationship     LabelSelectorOperator
+	LabelKey         string
 	Value            string
-	MatchExpressions []metav1.LabelSelectorRequirement
+	MatchExpressions []LabelSelectorRequirement
 }

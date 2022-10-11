@@ -3,11 +3,8 @@ package configen
 import (
 	"CodeGenerationGo/template"
 	"CodeGenerationGo/util"
-	"bufio"
 	"fmt"
 	"gopkg.in/yaml.v3"
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"log"
 	"os"
 	"regexp"
@@ -34,7 +31,7 @@ func ParseStatement(statement string) template.MatchRes {
 	var matchRes template.MatchRes
 
 	matchRes.Trendrule = result1[0][1]
-	matchRes.Key = result1[0][3]
+	matchRes.LabelKey = result1[0][3]
 	matchRes.Value = result1[0][4]
 	matchRes.Relationship = util.Relation2Opera(result1[0][5])
 
@@ -47,9 +44,9 @@ func ParseStatement(statement string) template.MatchRes {
 		fmt.Println("relationship word srr")
 	}
 
-	matches := make([]metav1.LabelSelectorRequirement, 0)
+	matches := make([]template.LabelSelectorRequirement, 0)
 	for _, element := range result2 {
-		var match metav1.LabelSelectorRequirement
+		var match template.LabelSelectorRequirement
 		match.Key = element[1]
 		match.Values = append(match.Values, element[2])
 		match.Operator = matchRes.Relationship
@@ -63,70 +60,97 @@ func ParseStatement(statement string) template.MatchRes {
 }
 
 // 初始化affinity
-func AffinityInit() v1.Affinity {
-	affinity := v1.Affinity{}
+func AffinityInit() template.Affinity {
+	affinity := template.Affinity{}
 
 	return affinity
 }
 
-func InsertMatchRes2Affinity(affinity v1.Affinity, matchRes template.MatchRes) v1.Affinity {
-	var labelSelector metav1.LabelSelector
+func InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.MatchRes) template.Affinity {
+	var labelSelector template.LabelSelector
 	labelSelector.MatchExpressions = matchRes.MatchExpressions
+	labelSelector.MatchLabels = make(map[string]string) //分配内存
+	labelSelector.MatchLabels[matchRes.LabelKey] = matchRes.Value
+
+	podAffinityTerm := template.PodAffinityTerm{LabelSelector: &labelSelector}
 
 	if matchRes.Trendrule == "preferred" {
-		//TODO
-		//var preference template.Perference
-		//preference.Weight = matchRes.Weight
-		//preference.PodAffinityTerm.LabelSelector = append(
-		//	preference.PodAffinityTerm.LabelSelector, labelSelector)
-		//affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution.Preference = append(
-		//	affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution.Preference, preference)
+
+		var preference template.WeightedPodAffinityTerm
+		preference = template.WeightedPodAffinityTerm{
+			Weight:          matchRes.Weight,
+			PodAffinityTerm: podAffinityTerm}
+
+		if affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution == nil {
+			affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution = []template.WeightedPodAffinityTerm{preference}
+
+		} else {
+			affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution = append(
+				affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution, preference)
+		}
+
 	}
 
 	if matchRes.Trendrule == "required" {
-		affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(
-			affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution.LabelSelector, labelSelector)
+		//for _, label := range affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution {
+		//	//TODO 判断是否已经有这个label了
+		//}
+
+		if affinity.PodAffinity == nil {
+			affinity.PodAffinity = &template.PodAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: []template.PodAffinityTerm{podAffinityTerm}}
+		} else {
+			affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(
+				affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution, podAffinityTerm)
+		}
+
 	}
 
-	return affinity
+	return *affinity
 }
 
-func InsertAffinity2Yaml(affinity v1.Affinity, sourcePath string, outPath string) {
-	config, _ := util.ReadConfigYaml(sourcePath)
-	config.Spec.Affinity = affinity
-	yamlByte, _ := yaml.Marshal(config)
+func InsertAffinity2Yaml(statePath string, sourcePath string, outPath string) {
+	var affinity template.Affinity
+	matches := ParseStatement(statePath)
+	InsertMatchRes2PodAffinity(&affinity, matches)
+
+	pod, _ := util.ReadPodYamlFile(sourcePath)
+	if pod.Spec.Affinity == nil {
+		pod.Spec.Affinity = &affinity
+	}
+	yamlByte, _ := yaml.Marshal(pod)
 
 	if err := os.WriteFile(outPath, yamlByte, 0666); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func YamlGen(states []string, sourcePath string, outPath string) {
-	affinity := AffinityInit()
-	for _, state := range states {
-		match := ParseStatement(state)
-		affinity = InsertMatchRes2Affinity(affinity, match)
-	}
-	InsertAffinity2Yaml(affinity, sourcePath, outPath)
-
-}
-func YamlGenbyTxt(statesfile string, sourcePath string, outPath string) {
-	var statements []string
-	file, err := os.Open(statesfile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		statements = append(statements, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	YamlGen(statements, sourcePath, outPath)
-
-}
+//func YamlGen(states []string, sourcePath string, outPath string) {
+//	affinity := AffinityInit()
+//	for _, state := range states {
+//		match := ParseStatement(state)
+//		affinity = InsertMatchRes2Affinity(affinity, match)
+//	}
+//	InsertAffinity2Yaml(affinity, sourcePath, outPath)
+//
+//}
+//func YamlGenbyTxt(statesfile string, sourcePath string, outPath string) {
+//	var statements []string
+//	file, err := os.Open(statesfile)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	defer file.Close()
+//
+//	scanner := bufio.NewScanner(file)
+//	for scanner.Scan() {
+//		statements = append(statements, scanner.Text())
+//	}
+//
+//	if err := scanner.Err(); err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	YamlGen(statements, sourcePath, outPath)
+//
+//}

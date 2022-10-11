@@ -1,7 +1,7 @@
 package util
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"CodeGenerationGo/template"
 )
 
 func Test() {
@@ -16,12 +16,20 @@ func AnalysisRelationalStatement(statement string) {
 
 }
 
-func Relation2Opera(relat string) metav1.LabelSelectorOperator {
+func Relation2Opera(relat string) template.LabelSelectorOperator {
 	if relat == "&" {
-		return metav1.LabelSelectorOpIn
+		return template.LabelSelectorOpIn
 	}
 	if relat == "^" {
-		return metav1.LabelSelectorOpNotIn
+		return template.LabelSelectorOpNotIn
 	}
 	return "nil"
 }
+
+//func ContainsInArray[T any](items []T, item T) bool {
+//	for _, eachItem := range items {
+//		bytes.Compare(eachItem, item)
+//
+//	}
+//	return false
+//}
