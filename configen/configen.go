@@ -203,10 +203,10 @@ func InsertYamlbyTxtstatement(statesfile string, sourcePath string, outPath stri
 
 }
 
-func DeletePodStatusFromYaml(sourcePath string) {
+func DeletePodStatusFromYaml(sourcePath string, out string) {
 	pod, _ := util.ReadPodYamlFile(sourcePath)
 	deletePodStatus(pod)
-	util.WriteObject2Yaml(pod, sourcePath)
+	util.WriteObject2Yaml(pod, out)
 
 }
 

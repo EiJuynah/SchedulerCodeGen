@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"nginx","namespace":"default"},"spec":{"affinity":{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"disktype","operator":"In","values":["ssd"]}]}]}}},"containers":[{"image":"nginx","imagePullPolicy":"IfNotPresent","name":"nginx"}]}}
+  creationTimestamp: "2022-10-12T07:32:17Z"
+  name: nginx
+  namespace: default
+  resourceVersion: "88223"
+  uid: 8f609554-7d61-4454-8737-33de766bced0
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - appA
+              - key: app
+                operator: In
+                values:
+                  - appB
+
+
+  containers:
+    - image: nginx
+      imagePullPolicy: IfNotPresent
+      name: nginx
+      resources: { }
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: kube-api-access-m7tkh
+          readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: minikube
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: { }
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+  volumes:
+    - name: kube-api-access-m7tkh
+      projected:
+        defaultMode: 420
+        sources:
+          - serviceAccountToken:
+              expirationSeconds: 3607
+              path: token
+          - configMap:
+              items:
+                - key: ca.crt
+                  path: ca.crt
+              name: kube-root-ca.crt
+          - downwardAPI:
+              items:
+                - fieldRef:
+                    apiVersion: v1
+                    fieldPath: metadata.namespace
+                  path: namespace
+status:
+  conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-10-12T07:32:17Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-10-12T07:33:10Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-10-12T07:33:10Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-10-12T07:32:17Z"
+      status: "True"
+      type: PodScheduled
+  containerStatuses:
+    - containerID: docker://0f02133fde99c3576efcc08aef47bd35ea10168ea411fb541ff85203cb060e2c
+      image: nginx:latest
+      imageID: docker-pullable://nginx@sha256:2f770d2fe27bc85f68fd7fe6a63900ef7076bc703022fe81b980377fe3d27b70
+      lastState: { }
+      name: nginx
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-10-12T07:33:10Z"
+  hostIP: 192.168.49.2
+  phase: Running
+  podIP: 172.17.0.9
+  podIPs:
+    - ip: 172.17.0.9
+  qosClass: BestEffort
+  startTime: "2022-10-12T07:32:17Z"
