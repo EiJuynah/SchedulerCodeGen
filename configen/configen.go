@@ -3,6 +3,7 @@ package configen
 import (
 	"CodeGenerationGo/template"
 	"CodeGenerationGo/util"
+	"bufio"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"log"
@@ -10,6 +11,10 @@ import (
 	"regexp"
 	"strconv"
 )
+
+func add() {
+	fmt.Println("111")
+}
 
 // 将输入的语句转变成MatchRes格式
 // 一条输入语句转换成一个MatchRes
@@ -105,13 +110,13 @@ func InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.M
 
 		}
 
-	} else { //使用antiaffinity
-		//将notin和notexist改为in与exist
-		for _, requirement := range labelSelector.MatchExpressions {
+	} else { //使用antiaffinity,同时将notin和notexist改为in与exist
+
+		for index, requirement := range podAffinityTerm.LabelSelector.MatchExpressions {
 			if requirement.Operator == template.LabelSelectorOpNotIn {
-				requirement.Operator = template.LabelSelectorOpIn
+				podAffinityTerm.LabelSelector.MatchExpressions[index].Operator = template.LabelSelectorOpIn
 			} else if requirement.Operator == template.LabelSelectorOpDoesNotExist {
-				requirement.Operator = template.LabelSelectorOpExists
+				podAffinityTerm.LabelSelector.MatchExpressions[index].Operator = template.LabelSelectorOpExists
 			}
 		}
 
@@ -149,10 +154,13 @@ func InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.M
 	return *affinity
 }
 
-func InsertAffinity2Yaml(statePath string, sourcePath string, outPath string) {
+func InsertAffinity2Yaml(statelist []string, sourcePath string, outPath string) {
 	var affinity template.Affinity
-	matches := ParseStatement(statePath)
-	InsertMatchRes2PodAffinity(&affinity, matches)
+	//将所有的语句串插入该affinity
+	for _, state := range statelist {
+		matches := ParseStatement(state)
+		InsertMatchRes2PodAffinity(&affinity, matches)
+	}
 
 	pod, _ := util.ReadPodYamlFile(sourcePath)
 	if pod.Spec.Affinity == nil {
@@ -165,32 +173,44 @@ func InsertAffinity2Yaml(statePath string, sourcePath string, outPath string) {
 	}
 }
 
-//func YamlGen(states []string, sourcePath string, outPath string) {
-//	affinity := AffinityInit()
-//	for _, state := range states {
-//		match := ParseStatement(state)
-//		affinity = InsertMatchRes2Affinity(affinity, match)
-//	}
-//	InsertAffinity2Yaml(affinity, sourcePath, outPath)
+//	func YamlGen(states []string, sourcePath string, outPath string) {
+//		affinity := AffinityInit()
+//		for _, state := range states {
+//			match := ParseStatement(state)
+//			affinity = InsertMatchRes2Affinity(affinity, match)
+//		}
+//		InsertAffinity2Yaml(affinity, sourcePath, outPath)
 //
-//}
-//func YamlGenbyTxt(statesfile string, sourcePath string, outPath string) {
-//	var statements []string
-//	file, err := os.Open(statesfile)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	defer file.Close()
-//
-//	scanner := bufio.NewScanner(file)
-//	for scanner.Scan() {
-//		statements = append(statements, scanner.Text())
-//	}
-//
-//	if err := scanner.Err(); err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	YamlGen(statements, sourcePath, outPath)
-//
-//}
+// }
+func InsertYamlbyTxtstatement(statesfile string, sourcePath string, outPath string) {
+	var statements []string
+	file, err := os.Open(statesfile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		statements = append(statements, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	InsertAffinity2Yaml(statements, sourcePath, outPath)
+
+}
+
+func DeletePodStatusFromYaml(sourcePath string) {
+	pod, _ := util.ReadPodYamlFile(sourcePath)
+	deletePodStatus(pod)
+	util.WriteObject2Yaml(pod, sourcePath)
+
+}
+
+func deletePodStatus(pod *template.Pod) {
+	pod.Status = template.PodStatus{}
+
+}

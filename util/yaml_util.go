@@ -7,6 +7,8 @@ import (
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
+	"log"
+	"os"
 )
 
 func ReadmatchlsrFile(path string) (*template.LabelSelectorRequirement, error) {
@@ -85,4 +87,12 @@ func ReadAffinityJson(path string) (*v1.Affinity, error) {
 	}
 
 	return &conf, nil
+}
+
+func WriteObject2Yaml(in interface{}, outPath string) {
+	yamlByte, _ := yaml.Marshal(in)
+
+	if err := os.WriteFile(outPath, yamlByte, 0666); err != nil {
+		log.Fatal(err)
+	}
 }
