@@ -15,7 +15,7 @@ func main() {
 	////configpath := ".\\files\\input.txt"
 	//configen.InsertAffinity2Yaml("required: app:appA & app:appB", sourceyamlpath, outputyamlpath)
 	var affinity template.Affinity
-	matches := configen.ParseStatement("required: app:appA & app:appB")
+	matches := configen.ParseStatement("required: app:appA ^ app:appB")
 	affinity = configen.InsertMatchRes2PodAffinity(&affinity, matches)
 	fmt.Println(affinity)
 	yamlByte, _ := yaml.Marshal(affinity)

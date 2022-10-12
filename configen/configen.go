@@ -62,7 +62,6 @@ func ParseStatement(statement string) template.MatchRes {
 // 初始化affinity
 func AffinityInit() template.Affinity {
 	affinity := template.Affinity{}
-
 	return affinity
 }
 
@@ -72,36 +71,77 @@ func InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.M
 	labelSelector.MatchLabels = make(map[string]string) //分配内存
 	labelSelector.MatchLabels[matchRes.LabelKey] = matchRes.Value
 
-	podAffinityTerm := template.PodAffinityTerm{LabelSelector: &labelSelector}
+	podAffinityTerm := template.PodAffinityTerm{
+		LabelSelector: &labelSelector,
+		TopologyKey:   template.DEFAULT_TOPOLOGYKRY, //拓扑域采用默认的kubernetes.io/hostname
+	}
+	if matchRes.Relationship == template.LabelSelectorOpIn || matchRes.Relationship == template.LabelSelectorOpExists {
+		if matchRes.Trendrule == "preferred" {
 
-	if matchRes.Trendrule == "preferred" {
+			var preference template.WeightedPodAffinityTerm
+			preference = template.WeightedPodAffinityTerm{
+				Weight:          matchRes.Weight,
+				PodAffinityTerm: podAffinityTerm}
 
-		var preference template.WeightedPodAffinityTerm
-		preference = template.WeightedPodAffinityTerm{
-			Weight:          matchRes.Weight,
-			PodAffinityTerm: podAffinityTerm}
+			if affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution == nil {
+				affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution = []template.WeightedPodAffinityTerm{preference}
 
-		if affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution == nil {
-			affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution = []template.WeightedPodAffinityTerm{preference}
+			} else {
+				affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution = append(
+					affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution, preference)
+			}
 
-		} else {
-			affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution = append(
-				affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution, preference)
 		}
 
-	}
+		if matchRes.Trendrule == "required" {
 
-	if matchRes.Trendrule == "required" {
-		//for _, label := range affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution {
-		//	//TODO 判断是否已经有这个label了
-		//}
+			if affinity.PodAffinity == nil {
+				affinity.PodAffinity = &template.PodAffinity{
+					RequiredDuringSchedulingIgnoredDuringExecution: []template.PodAffinityTerm{podAffinityTerm}}
+			} else {
+				affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(
+					affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution, podAffinityTerm)
+			}
 
-		if affinity.PodAffinity == nil {
-			affinity.PodAffinity = &template.PodAffinity{
-				RequiredDuringSchedulingIgnoredDuringExecution: []template.PodAffinityTerm{podAffinityTerm}}
-		} else {
-			affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(
-				affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution, podAffinityTerm)
+		}
+
+	} else { //使用antiaffinity
+		//将notin和notexist改为in与exist
+		for _, requirement := range labelSelector.MatchExpressions {
+			if requirement.Operator == template.LabelSelectorOpNotIn {
+				requirement.Operator = template.LabelSelectorOpIn
+			} else if requirement.Operator == template.LabelSelectorOpDoesNotExist {
+				requirement.Operator = template.LabelSelectorOpExists
+			}
+		}
+
+		if matchRes.Trendrule == "preferred" {
+
+			var preference template.WeightedPodAffinityTerm
+			preference = template.WeightedPodAffinityTerm{
+				Weight:          matchRes.Weight,
+				PodAffinityTerm: podAffinityTerm}
+
+			if affinity.PodAntiAffinity.PreferredDuringSchedulingIgnoredDuringExecution == nil {
+				affinity.PodAntiAffinity.PreferredDuringSchedulingIgnoredDuringExecution = []template.WeightedPodAffinityTerm{preference}
+
+			} else {
+				affinity.PodAntiAffinity.PreferredDuringSchedulingIgnoredDuringExecution = append(
+					affinity.PodAntiAffinity.PreferredDuringSchedulingIgnoredDuringExecution, preference)
+			}
+
+		}
+
+		if matchRes.Trendrule == "required" {
+
+			if affinity.PodAntiAffinity == nil {
+				affinity.PodAntiAffinity = &template.PodAntiAffinity{
+					RequiredDuringSchedulingIgnoredDuringExecution: []template.PodAffinityTerm{podAffinityTerm}}
+			} else {
+				affinity.PodAntiAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(
+					affinity.PodAntiAffinity.RequiredDuringSchedulingIgnoredDuringExecution, podAffinityTerm)
+			}
+
 		}
 
 	}

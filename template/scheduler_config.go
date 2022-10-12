@@ -70,3 +70,7 @@ type MatchRes struct {
 	Value            string
 	MatchExpressions []LabelSelectorRequirement
 }
+
+const (
+	DEFAULT_TOPOLOGYKRY = "kubernetes.io/hostname"
+)
