@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6c373a28-7b76-44a6-9022-bf50f6f9354b" name="Changes" comment="temp save">
-      <change beforePath="$PROJECT_DIR$/configen/configen.go" beforeDir="false" afterPath="$PROJECT_DIR$/configen/configen.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kubectl-cfgen.go" beforeDir="false" afterPath="$PROJECT_DIR$/kubectl-cfgen.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,7 +128,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="dev" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
