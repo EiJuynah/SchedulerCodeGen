@@ -154,7 +154,7 @@ func InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.M
 	return *affinity
 }
 
-func InsertAffinity2Yaml(statelist []string, sourcePath string, outPath string) {
+func insertAffinity2Yaml(statelist []string, sourcePath string, outPath string) {
 	var affinity template.Affinity
 	//将所有的语句串插入该affinity
 	for _, state := range statelist {
@@ -182,6 +182,8 @@ func InsertAffinity2Yaml(statelist []string, sourcePath string, outPath string) 
 //		InsertAffinity2Yaml(affinity, sourcePath, outPath)
 //
 // }
+
+// 根据
 func InsertYamlbyTxtstatement(statesfile string, sourcePath string, outPath string) {
 	var statements []string
 	file, err := os.Open(statesfile)
@@ -199,7 +201,7 @@ func InsertYamlbyTxtstatement(statesfile string, sourcePath string, outPath stri
 		log.Fatal(err)
 	}
 
-	InsertAffinity2Yaml(statements, sourcePath, outPath)
+	insertAffinity2Yaml(statements, sourcePath, outPath)
 
 }
 

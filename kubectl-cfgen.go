@@ -4,30 +4,24 @@ import (
 	"CodeGenerationGo/configen"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 )
 
 func main() {
-	configen.DeletePodStatusFromYaml(".\\file\\test1.yaml", ".\\file\\test2.yaml")
+
+	configen.InsertYamlbyTxtstatement(".\\files\\input.txt", ".\\files\\source.yaml", ".\\files\\target.yaml")
 }
 
-func a() {
-	args := os.Args
-	////sourceyamlpath := ".\\files\\source.yaml"
-	////outputyamlpath := ".\\files\\target.yaml"
-	////configpath := ".\\files\\input.txt"
+func Reschedule(podName string) {
+	//args := os.Args
 
-	if args[1] != "" {
-		fmt.Println(args[1])
-	}
 	//reg := regexp.MustCompile(`(\w+):(\w+)`)
 	//podinfo := reg.FindAllStringSubmatch(args[1], -1)
 	//podLabelKey := podinfo[0]
 	//podValue := podinfo[1]
 
-	//第一个参数是想要调度的pod的name
-	podName := args[1]
+	////第一个参数是想要调度的pod的name
+	//podName := args[1]
 	SCFilePath := "./SCFile"
 
 	//first step

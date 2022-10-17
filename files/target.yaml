@@ -1,0 +1,72 @@
+kind: pod
+apiVersion: v1
+metadata:
+    name: app_test
+spec:
+    containers: []
+    affinity:
+        podAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                        app: appA
+                    matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                            - appB
+                  topologyKey: kubernetes.io/hostname
+            preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 80
+                  podAffinityTerm:
+                    labelSelector:
+                        matchLabels:
+                            app: appA
+                        matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                                - appE
+                    topologyKey: kubernetes.io/hostname
+                - weight: 60
+                  podAffinityTerm:
+                    labelSelector:
+                        matchLabels:
+                            app: appA
+                        matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                                - appF
+                            - key: app
+                              operator: In
+                              values:
+                                - appG
+                    topologyKey: kubernetes.io/hostname
+        podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                        app: appA
+                    matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                            - appC
+                        - key: app
+                          operator: In
+                          values:
+                            - appD
+                  topologyKey: kubernetes.io/hostname
+            preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 40
+                  podAffinityTerm:
+                    labelSelector:
+                        matchLabels:
+                            app: appA
+                        matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                                - apH
+                    topologyKey: kubernetes.io/hostname

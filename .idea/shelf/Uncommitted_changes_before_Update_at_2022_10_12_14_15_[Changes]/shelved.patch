@@ -1,0 +1,38 @@
+Index: configen/configen.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package configen\r\n\r\nimport (\r\n\t\"CodeGenerationGo/template\"\r\n\t\"CodeGenerationGo/util\"\r\n\t\"fmt\"\r\n\t\"gopkg.in/yaml.v3\"\r\n\t\"log\"\r\n\t\"os\"\r\n\t\"regexp\"\r\n\t\"strconv\"\r\n)\r\n\r\n// 将输入的语句转变成MatchRes格式\r\n// 一条输入语句转换成一个MatchRes\r\nfunc ParseStatement(statement string) template.MatchRes {\r\n\t//statement example:  required: app:appA & app:appB\r\n\t//result[0] : required: app:appA\r\n\t//Parse the regular expression and return the interpreter if successful\r\n\t//reg1 parses the whole statement\r\n\t//reg2 parses the sub\r\n\treg1 := regexp.MustCompile(`(required|preferred):(\\d*)\\s(\\w+):(\\w+)\\s(&|\\^)\\s(.+)`)\r\n\treg2 := regexp.MustCompile(`(\\w+):(\\w+)`)\r\n\tif reg1 == nil || reg2 == nil {\r\n\t\tfmt.Println(\"syntax err\")\r\n\t}\r\n\r\n\tresult1 := reg1.FindAllStringSubmatch(statement, -1)\r\n\tresult2 := reg2.FindAllStringSubmatch(result1[0][6], -1)\r\n\r\n\tvar matchRes template.MatchRes\r\n\r\n\tmatchRes.Trendrule = result1[0][1]\r\n\tmatchRes.LabelKey = result1[0][3]\r\n\tmatchRes.Value = result1[0][4]\r\n\tmatchRes.Relationship = util.Relation2Opera(result1[0][5])\r\n\r\n\tif matchRes.Trendrule == \"required\" {\r\n\t\tmatchRes.Weight = -1\r\n\r\n\t} else if matchRes.Trendrule == \"preferred\" {\r\n\t\tmatchRes.Weight, _ = strconv.Atoi(result1[0][2]) //字符串转换为数字\r\n\t} else {\r\n\t\tfmt.Println(\"relationship word srr\")\r\n\t}\r\n\r\n\tmatches := make([]template.LabelSelectorRequirement, 0)\r\n\tfor _, element := range result2 {\r\n\t\tvar match template.LabelSelectorRequirement\r\n\t\tmatch.Key = element[1]\r\n\t\tmatch.Values = append(match.Values, element[2])\r\n\t\tmatch.Operator = matchRes.Relationship\r\n\r\n\t\tmatches = append(matches, match)\r\n\r\n\t}\r\n\tmatchRes.MatchExpressions = matches\r\n\r\n\treturn matchRes\r\n}\r\n\r\n// 初始化affinity\r\nfunc AffinityInit() template.Affinity {\r\n\taffinity := template.Affinity{}\r\n\r\n\treturn affinity\r\n}\r\n\r\nfunc InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.MatchRes) template.Affinity {\r\n\tvar labelSelector template.LabelSelector\r\n\tlabelSelector.MatchExpressions = matchRes.MatchExpressions\r\n\tlabelSelector.MatchLabels = make(map[string]string) //分配内存\r\n\tlabelSelector.MatchLabels[matchRes.LabelKey] = matchRes.Value\r\n\r\n\tpodAffinityTerm := template.PodAffinityTerm{LabelSelector: &labelSelector}\r\n\r\n\tif matchRes.Trendrule == \"preferred\" {\r\n\r\n\t\tvar preference template.WeightedPodAffinityTerm\r\n\t\tpreference = template.WeightedPodAffinityTerm{\r\n\t\t\tWeight:          matchRes.Weight,\r\n\t\t\tPodAffinityTerm: podAffinityTerm}\r\n\r\n\t\tif affinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution == nil {\r\n\t\t\taffinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution = []template.WeightedPodAffinityTerm{preference}\r\n\r\n\t\t} else {\r\n\t\t\taffinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution = append(\r\n\t\t\t\taffinity.PodAffinity.PreferredDuringSchedulingIgnoredDuringExecution, preference)\r\n\t\t}\r\n\r\n\t}\r\n\r\n\tif matchRes.Trendrule == \"required\" {\r\n\t\t//for _, label := range affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution {\r\n\t\t//\t//TODO 判断是否已经有这个label了\r\n\t\t//}\r\n\r\n\t\tif affinity.PodAffinity == nil {\r\n\t\t\taffinity.PodAffinity = &template.PodAffinity{\r\n\t\t\t\tRequiredDuringSchedulingIgnoredDuringExecution: []template.PodAffinityTerm{podAffinityTerm}}\r\n\t\t} else {\r\n\t\t\taffinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(\r\n\t\t\t\taffinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution, podAffinityTerm)\r\n\t\t}\r\n\r\n\t}\r\n\r\n\treturn *affinity\r\n}\r\n\r\nfunc InsertAffinity2Yaml(statePath string, sourcePath string, outPath string) {\r\n\tvar affinity template.Affinity\r\n\tmatches := ParseStatement(statePath)\r\n\tInsertMatchRes2PodAffinity(&affinity, matches)\r\n\r\n\tpod, _ := util.ReadPodYamlFile(sourcePath)\r\n\tif pod.Spec.Affinity == nil {\r\n\t\tpod.Spec.Affinity = &affinity\r\n\t}\r\n\tyamlByte, _ := yaml.Marshal(pod)\r\n\r\n\tif err := os.WriteFile(outPath, yamlByte, 0666); err != nil {\r\n\t\tlog.Fatal(err)\r\n\t}\r\n}\r\n\r\n//func YamlGen(states []string, sourcePath string, outPath string) {\r\n//\taffinity := AffinityInit()\r\n//\tfor _, state := range states {\r\n//\t\tmatch := ParseStatement(state)\r\n//\t\taffinity = InsertMatchRes2Affinity(affinity, match)\r\n//\t}\r\n//\tInsertAffinity2Yaml(affinity, sourcePath, outPath)\r\n//\r\n//}\r\n//func YamlGenbyTxt(statesfile string, sourcePath string, outPath string) {\r\n//\tvar statements []string\r\n//\tfile, err := os.Open(statesfile)\r\n//\tif err != nil {\r\n//\t\tlog.Fatal(err)\r\n//\t}\r\n//\tdefer file.Close()\r\n//\r\n//\tscanner := bufio.NewScanner(file)\r\n//\tfor scanner.Scan() {\r\n//\t\tstatements = append(statements, scanner.Text())\r\n//\t}\r\n//\r\n//\tif err := scanner.Err(); err != nil {\r\n//\t\tlog.Fatal(err)\r\n//\t}\r\n//\r\n//\tYamlGen(statements, sourcePath, outPath)\r\n//\r\n//}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/configen/configen.go b/configen/configen.go
+--- a/configen/configen.go	(revision 838af2d985aa0b93d9ac5cf5c562dbafc334dfea)
++++ b/configen/configen.go	(date 1665554917179)
+@@ -11,6 +11,10 @@
+ 	"strconv"
+ )
+ 
++func add() {
++	fmt.Println("111")
++}
++
+ // 将输入的语句转变成MatchRes格式
+ // 一条输入语句转换成一个MatchRes
+ func ParseStatement(statement string) template.MatchRes {
+@@ -109,10 +113,13 @@
+ 	return *affinity
+ }
+ 
+-func InsertAffinity2Yaml(statePath string, sourcePath string, outPath string) {
++func InsertAffinity2Yaml(statelist []string, sourcePath string, outPath string) {
+ 	var affinity template.Affinity
+-	matches := ParseStatement(statePath)
+-	InsertMatchRes2PodAffinity(&affinity, matches)
++	//将所有的语句串插入该affinity
++	for _, state := range statelist {
++		matches := ParseStatement(state)
++		InsertMatchRes2PodAffinity(&affinity, matches)
++	}
+ 
+ 	pod, _ := util.ReadPodYamlFile(sourcePath)
+ 	if pod.Spec.Affinity == nil {
