@@ -2,14 +2,19 @@ package main
 
 import (
 	"CodeGenerationGo/configen"
+	"flag"
 	"fmt"
 	"log"
 	"os/exec"
 )
 
-func main() {
+var PodName = flag.String("name", "", "Input Pod Name")
 
-	configen.InsertYamlbyTxtstatement(".\\files\\input.txt", ".\\files\\source.yaml", ".\\files\\target.yaml")
+func main() {
+	flag.Parse()
+	//configen.DeletePodStatusFromYaml(".\\pod.yaml", ".\\newpod.yaml")
+
+	//configen.GetPodYaml(args[1])
 }
 
 func Reschedule(podName string) {
@@ -48,8 +53,8 @@ func Reschedule(podName string) {
 	//forth step
 	//根据新生成的调度文件，重新启动一个新的pod
 	//kubectl apply -f ./newpod.yaml
-	cmd3 := exec.Command("cmd", "/c", "kubectl", "apply", "-f", "./newpod.yaml")
-	if err := cmd3.Run(); err != nil { // 运行命令
+	cmd := exec.Command("cmd", "/c", "kubectl", "apply", "-f", "./newpod.yaml")
+	if err := cmd.Run(); err != nil { // 运行命令
 		log.Fatal(err)
 	}
 

@@ -1,11 +1,12 @@
-package util
+package configen
 
 import (
-	"CodeGenerationGo/configen"
 	"bytes"
 	"fmt"
 	"log"
 	"os/exec"
+	"runtime"
+	"strings"
 )
 
 func GetPodYaml(podName string) []byte {
@@ -38,7 +39,7 @@ func DeletePod(podName string) {
 }
 
 func GenNewYaml(SCFilePath string) {
-	configen.InsertYamlbyTxtstatement(SCFilePath, "./pod.yaml", "./newpod.yaml")
+	InsertYamlbyTxtstatement(SCFilePath, "./pod.yaml", "./newpod.yaml")
 }
 
 func StartNewPod() {
@@ -47,5 +48,31 @@ func StartNewPod() {
 	cmd := exec.Command("cmd", "/c", "kubectl", "apply", "-f", "./newpod.yaml")
 	if err := cmd.Run(); err != nil { // 运行命令
 		log.Fatal(err)
+	}
+}
+
+func runInLinux(cmd string) string {
+	fmt.Println("Running Linux cmd:", cmd)
+	result, err := exec.Command("/bin/sh", "-c", cmd).Output()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return strings.TrimSpace(string(result))
+}
+
+func runInWindows(cmd string) string {
+	fmt.Println("Running Win cmd:", cmd)
+	result, err := exec.Command("cmd", "/c", cmd).Output()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return strings.TrimSpace(string(result))
+}
+
+func RunCommand(cmd string) string {
+	if runtime.GOOS == "windows" {
+		return runInWindows(cmd)
+	} else {
+		return runInLinux(cmd)
 	}
 }

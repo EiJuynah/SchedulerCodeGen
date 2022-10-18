@@ -2,11 +2,8 @@ package util
 
 import (
 	"CodeGenerationGo/template"
-	"fmt"
 	"math/rand"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -61,30 +58,4 @@ func getRandstring(length int) string {
 func RandFileName(fileName string) string {
 	randStr := getRandstring(16)
 	return randStr + filepath.Ext(fileName)
-}
-
-func runInLinux(cmd string) string {
-	fmt.Println("Running Linux cmd:", cmd)
-	result, err := exec.Command("/bin/sh", "-c", cmd).Output()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	return strings.TrimSpace(string(result))
-}
-
-func runInWindows(cmd string) string {
-	fmt.Println("Running Win cmd:", cmd)
-	result, err := exec.Command("cmd", "/c", cmd).Output()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	return strings.TrimSpace(string(result))
-}
-
-func RunCommand(cmd string) string {
-	if runtime.GOOS == "windows" {
-		return runInWindows(cmd)
-	} else {
-		return runInLinux(cmd)
-	}
 }

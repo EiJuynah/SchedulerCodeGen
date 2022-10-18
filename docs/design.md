@@ -9,3 +9,9 @@
 # 进度
 1. 让yaml没有元素的字段不会显示
 使用marshall里面的omitempty关键字
+
+
+有一个重调度器
+https://aiopsclub.com/kubernetes/k8s_descheduler/
+
+https://github.com/kubernetes-sigs/descheduler
