@@ -5,6 +5,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"time"
 )
 
 /*
@@ -42,6 +43,17 @@ type Volume struct {
 	// If not specified, the Volume is implied to be an EmptyDir.
 	// This implied behavior is deprecated and will be removed in a future version.
 	VolumeSource `yaml:",inline" protobuf:"bytes,2,opt,name=volumeSource"`
+}
+
+// Time is a wrapper around time.Time which supports correct
+// marshaling to YAML and JSON.  Wrappers are provided for many
+// of the factory methods that the time package offers.
+//
+// +protobuf.options.marshal=false
+// +protobuf.as=Timestamp
+// +protobuf.options.(gogoproto.goproto_stringer)=false
+type Time struct {
+	time.Time `protobuf:"-"`
 }
 
 // Represents the source of a volume to mount.
