@@ -1,8 +1,8 @@
 package configen
 
 import (
-	"CodeGenerationGo/template"
-	"CodeGenerationGo/util"
+	"CodeGenerationGo/pkg/template"
+	"CodeGenerationGo/pkg/util"
 	"fmt"
 	"regexp"
 	"strconv"

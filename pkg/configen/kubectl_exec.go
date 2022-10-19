@@ -1,7 +1,7 @@
 package configen
 
 import (
-	"CodeGenerationGo/util"
+	"CodeGenerationGo/pkg/util"
 	"bytes"
 	"fmt"
 	"log"

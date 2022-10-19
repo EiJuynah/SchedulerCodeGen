@@ -1,7 +1,7 @@
 package main
 
 import (
-	"CodeGenerationGo/configen"
+	"CodeGenerationGo/pkg/configen"
 	"flag"
 	"fmt"
 	"log"

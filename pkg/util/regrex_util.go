@@ -1,7 +1,7 @@
 package util
 
 import (
-	"CodeGenerationGo/template"
+	"CodeGenerationGo/pkg/template"
 	"math/rand"
 	"path/filepath"
 	"strings"
