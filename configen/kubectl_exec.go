@@ -1,6 +1,7 @@
 package configen
 
 import (
+	"CodeGenerationGo/util"
 	"bytes"
 	"fmt"
 	"log"
@@ -9,7 +10,7 @@ import (
 	"strings"
 )
 
-func GetPodYaml(podName string) []byte {
+func GetPodYaml(podName string) ([]byte, []byte) {
 	//获取当前pod的配置信息，将其输出重定向到pod.yaml中
 	//kubectl get -o yaml pod {podname} > pod.yaml
 	//此时的commmand为Windows的cmd，如果是linux环境，换成 bin/bash
@@ -19,12 +20,20 @@ func GetPodYaml(podName string) []byte {
 	cmd.Stdout = &stdout // 标准输出
 	cmd.Stderr = &stderr // 标准错误
 	err := cmd.Run()
-	outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
-	fmt.Printf("out:\n%s\nerr:\n%s\n", outStr, errStr)
+	//outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+	//fmt.Printf("out:\n%s\nerr:\n%s\n", outStr, errStr)
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
-	return stdout.Bytes()
+	return stdout.Bytes(), stderr.Bytes()
+}
+
+func AddAffinityByPodname(podName string, SCFilePath string) {
+	GetPodYaml(podName)
+	DeletePodStatusFromYaml(".\\pod.yaml", ".\\temp.yaml")
+	util.DeleteFile(".\\pod.yaml")
+	InsertYamlbyTxtstatement(SCFilePath, ".\\temp.yaml", ".\\newpod.yaml")
+	util.DeleteFile(".\\temp.yaml")
 }
 
 func DeletePod(podName string) {

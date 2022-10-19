@@ -13,8 +13,8 @@ var PodName = flag.String("name", "", "Input Pod Name")
 func main() {
 	flag.Parse()
 	//configen.DeletePodStatusFromYaml(".\\pod.yaml", ".\\newpod.yaml")
-
-	//configen.GetPodYaml(args[1])
+	SCFilePath := "./SCFile"
+	configen.AddAffinityByPodname(*PodName, SCFilePath)
 }
 
 func Reschedule(podName string) {

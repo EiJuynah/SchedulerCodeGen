@@ -96,3 +96,10 @@ func WriteObject2Yaml(in interface{}, outPath string) {
 		log.Fatal(err)
 	}
 }
+
+func DeleteFile(filepath string) {
+	err := os.Remove(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
