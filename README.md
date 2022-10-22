@@ -72,13 +72,17 @@ primaryPod与subPod通过label:value来指代唯一的pod
 
 项目基于GO1.19开发，为适配kubectl的插件。建议本地有高于GO1.19版本的Go环境,同时需要安装kubectl。
 
-#### 获取源码
+#### 1.1获取源码
 从sole的repo中获取项目源码`git clone https://gitee.com/solecnu/scheduler-code-gen.git`
-#### 编译项目
+#### 1.2编译项目
 进入目录，编译 kubectl-scgen.go`go build kubectl-scgen.go`，生成可执行文件kubectl-scgen
-#### 加入PATH
-将可执行文件kubectl-scgen放入PATH中。m
+#### 1.3加入PATH
+将可执行文件kubectl-scgen放入PATH中。在命令行输入`kubectl scgen -v`，若输出相应的版本信息，贼为构建安装成功。
+
+### 2. 编写SCFile
+编写SCFile
    
+
 
 ## 参考说明
 
