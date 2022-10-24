@@ -12,15 +12,18 @@ var VERSION = "1.01"
 
 func main() {
 	var podName = flag.String("name", "", "Input Pod Name")
-	//var version = flag.String("v", "", "output the project's version")
+	var version = flag.Bool("v", false, "output the project's version")
 	flag.Parse()
 	//configen.DeletePodStatusFromYaml(".\\pod.yaml", ".\\newpod.yaml")
-	//if *version != "" {
-	//	fmt.Println("Scheduler CodeGeneration -version ", VERSION)
-	//} else if *podName != "" {
-	SCFilePath := "./SCFile"
-	configen.AddAffinityByPodname(*podName, SCFilePath)
-	//}
+
+	//如果输入-v，输出代码生成器的version
+	if *version {
+		fmt.Println("Scheduler CodeGeneration version ", VERSION)
+	}
+	if *podName != "" {
+		SCFilePath := "./SCFile"
+		configen.AddAffinityByPodname(*podName, SCFilePath)
+	}
 
 }
 

@@ -33,11 +33,11 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
         - 多个matchExpressions：与
         - matchexpression中同个label下的slice：或
 - **代码生成模块**将优化完成的kubenetes资源对象配置生成yaml文件
-  ![](docs/pic/scgen逻辑架构.png)
+  ![](docs/pic/scgen逻辑架构.jpg)
 
 ### 数据流
 
-![](docs/pic/scgen数据流图.png)
+![](docs/pic/scgen数据流图.jpg)
 
 ### 工作流
 
@@ -80,9 +80,17 @@ primaryPod与subPod通过label:value来指代唯一的pod
 将可执行文件kubectl-scgen放入PATH中。在命令行输入`kubectl scgen -v`，若输出相应的版本信息，贼为构建安装成功。
 
 ### 2. 编写SCFile
-编写SCFile
-   
+按照sclang的语法编写SCFile
 
+例，选中appa不想和appb放在一起，则写法为
+`required： appa ^ appb`
+新建一个文件，将其命名为SCFile(无后缀)
+### 3.生成
+进入SCFile同目录，先检查想要生成配置代码的pod是否存在
+`kubectl get pod appa`
+再输入scgen命令指定pod名，生成已经插入的配置代码
+kubectl scgen -name=appa
+可以发现在同目录已经生成了新的配置文件newpod.yaml
 
 ## 参考说明
 
