@@ -128,7 +128,10 @@ containers:
   ports:
     - containerPort: 80
 ```
-
+2. 进入appa.yaml所在的目录，执行对应的创建命令
+```
+kubectl create -f ./appa.yaml
+```
 
 
 
