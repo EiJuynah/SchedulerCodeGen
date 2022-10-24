@@ -4,6 +4,9 @@
 
 本文档包含了针对调度器配置的代码生成器的功能、架构以及使用方法介绍。
 
+项目源代码
+[System Optimazation Lab, ECNU / SchedulerCodeGen](https://gitee.com/solecnu/scheduler-code-gen)
+
 ## 概述
 
 scgen（未取名），是一个针对kubernetes调度器配置文件生成的代码生成器。针对具体的pod，支持读取编写好的结构化的sclang，
@@ -32,7 +35,7 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
         - 多个NodeSelectorTerms：或
         - 多个matchExpressions：与
         - matchexpression中同个label下的slice：或
-- 冲突检测模块将静态分析配置有冲突的语句，并报出冲突提示
+- **冲突检测模块**将静态分析配置有冲突的语句，并报出冲突提示
     1. 配置的逻辑冲突。如在一个文件中 a in b，a notin b同时出现，需要报出错误
 - **代码生成模块**将优化完成的kubenetes资源对象配置生成yaml文件
 
