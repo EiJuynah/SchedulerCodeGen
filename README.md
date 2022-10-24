@@ -132,11 +132,7 @@ containers:
 ```
 kubectl create -f ./appa.yaml
 ```
-
-
-
-### 4. 生成
-1. 进入SCFile同目录，先检查想要生成配置代码的pod是否存在
+3. 检查appa是否配置成功
 ```shell
 kubectl get pod appa
 ```
@@ -146,6 +142,11 @@ PS E:\project\CodeGenerationGo>  kubectl get pod appa
 NAME   READY   STATUS    RESTARTS        AGE
 appa   1/1     Running   2 (3h36m ago)   4d23h
 ```
+
+
+### 4. 生成
+1. 进入SCFile同目录，先检查想要生成配置代码的pod是否存在
+
 2. 再输入scgen命令指定pod名，生成已经插入的配置代码
 ```shell
 kubectl scgen -name=appa
