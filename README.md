@@ -112,7 +112,8 @@ required： appa ^ appb
 ```
 
 ### 3. 部署应用
-在kubenetes集群中部署nginx，kubernetes集群选用minikube示例。
+在kubenetes集群中部署nginx，名叫appa，kubernetes集群选用minikube示例。
+1. 首先准备一个yaml配置文件：appa.yaml
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -127,6 +128,7 @@ containers:
   ports:
     - containerPort: 80
 ```
+
 
 
 
