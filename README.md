@@ -20,7 +20,7 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
 
 在**用户层**，用户可感知的代码生成器的入口为kubectl的命令行，由在命令行中输入参数运行。
 
-在**服务模块层**，主要分为sclang分析模块、模板注入与生成模块、配置优化、代码生成共4个模块。
+在**服务模块层**，主要分为sclang分析模块、模板注入与生成模块、配置优化、冲突检测、代码生成共5个模块。
 
 - sclang分析模块主要将用户编写的sclang控制语句，结构化成go语言中的中间数据结构，类似于IR。
 - 模板注入与生成模块将sclang转换成的中间数据，注入到kubernetes对象模板中，在这里主要为注入到Pod.PodSpec.Affinity中。
@@ -32,16 +32,19 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
         - 多个NodeSelectorTerms：或
         - 多个matchExpressions：与
         - matchexpression中同个label下的slice：或
+- 冲突检测模块将静态分析配置有冲突的语句，并报出冲突提示
+    1. 配置的逻辑冲突。如在一个文件中 a in b，a notin b同时出现，需要报出错误
 - **代码生成模块**将优化完成的kubenetes资源对象配置生成yaml文件
-  ![](docs/pic/scgen逻辑架构.jpg)
+
+  ![scgen逻辑架构](docs/pic/scgen逻辑架构.jpg)
 
 ### 数据流
 
-![](docs/pic/scgen数据流图.jpg)
+![scgen数据流图](docs/pic/scgen数据流图.jpg)
 
 ### 工作流
 
-![](docs/pic/scgen泳道图.jpg)
+![scgen泳道图](docs/pic/scgen泳道图.jpg)
 
 ## sclang语法介绍
 
@@ -52,51 +55,111 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
 primaryPod与subPod分别为需要配置亲和度的pod与之有关系的pod；configRelationship表示pod之间的亲和度配置关系，目前支持了依赖与排斥两种关系
 
 - 一条required语句基本结构为：
-`required: primaryPod configRelationship subPod1,subPod2...`
-
+```
+required: primaryPod configRelationship subPod1,subPod2...
+```
 - 一条preferred语句基本结构为：
-`preferred:weight primaryPod configRelationship subPod1,subPod2...`
-
+```
+preferred:weight primaryPod configRelationship subPod1,subPod2...
+```
 primaryPod与subPod通过label:value来指代唯一的pod
 
 ### 字段描述
 
-| 字段 | 描述 | 例子|
-|---|----|------|
-| required|cc|cc|
+| 字段 | 描述                   | 例子           |
+|---|----------------------|--------------|
+| required| cc                   | cc           |
+|preferred| xx                   | preferred：80 |
+|weight| 在preferred字段中使用，表示权重 | preferred：80 |
+|primaryPod|||
+|configRelationship|||
+|subPod||
 
 ## 使用说明
 
 下面以部署一个nginx应用为例，介绍配置约束、生成yaml的流程。
 ### 1. 构建项目
 
-项目基于GO1.19开发，为适配kubectl的插件。建议本地有高于GO1.19版本的Go环境,同时需要安装kubectl。
+项目基于GO1.19开发，为适配kubectl的插件。建议本地有高于GO1.19版本的Go环境,同时本机需要安装kubectl。
 
 #### 1.1获取源码
-从sole的repo中获取项目源码`git clone https://gitee.com/solecnu/scheduler-code-gen.git`
+从sole的repo中获取项目源码  
+```
+git clone https://gitee.com/solecnu/scheduler-code-gen.git
+```
 #### 1.2编译项目
-进入目录，编译 kubectl-scgen.go`go build kubectl-scgen.go`，生成可执行文件kubectl-scgen
+进入目录，编译 kubectl-scgen.go  
+```
+go build kubectl-scgen.go
+```
+生成可执行文件`kubectl-scgen`
 #### 1.3加入PATH
-将可执行文件kubectl-scgen放入PATH中。在命令行输入`kubectl scgen -v`，若输出相应的版本信息，贼为构建安装成功。
+将可执行文件kubectl-scgen放入PATH中。在命令行输入  
+```
+kubectl scgen -v
+``` 
+若输出相应的版本信息，贼为构建安装成功。
 
 ### 2. 编写SCFile
-按照sclang的语法编写SCFile
+新建一个文件，将其命名为SCFile(无后缀)，按照sclang的语法编写SCFile
 
 例，选中appa不想和appb放在一起，则写法为
-`required： appa ^ appb`
-新建一个文件，将其命名为SCFile(无后缀)
-### 3.生成
-进入SCFile同目录，先检查想要生成配置代码的pod是否存在
-`kubectl get pod appa`
-再输入scgen命令指定pod名，生成已经插入的配置代码
+```
+required： appa ^ appb
+```
+
+### 3. 部署应用
+在kubenetes集群中部署nginx，kubernetes集群选用minikube示例。
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+name: appa
+labels:
+app: appa
+spec:
+containers:
+- name: nginx
+  image: nginx:alpine
+  ports:
+    - containerPort: 80
+```
+
+
+
+### 4. 生成
+1. 进入SCFile同目录，先检查想要生成配置代码的pod是否存在
+```shell
+kubectl get pod appa
+```
+输出appa的状态，表示名叫appa的pod正常运行
+```shell
+PS E:\project\CodeGenerationGo>  kubectl get pod appa 
+NAME   READY   STATUS    RESTARTS        AGE
+appa   1/1     Running   2 (3h36m ago)   4d23h
+```
+2. 再输入scgen命令指定pod名，生成已经插入的配置代码
+```shell
 kubectl scgen -name=appa
+```
+
 可以发现在同目录已经生成了新的配置文件newpod.yaml
 
-## 参考说明
+## 说明
 
-1. 项目库里面会新设立：INFO.md文档，用于记录概念基础和参考文档。
-2. TODO
-3. TODO
+### topicalkey
+topical的默认配置在
+原则上，topologyKey 可以是任何合法的标签键。出于性能和安全原因，topologyKey 有一些限制：
+
+对于 Pod 亲和性而言，在 requiredDuringSchedulingIgnoredDuringExecution 和 preferredDuringSchedulingIgnoredDuringExecution 中，topologyKey 不允许为空。
+对于 requiredDuringSchedulingIgnoredDuringExecution 要求的 Pod 反亲和性， 准入控制器 LimitPodHardAntiAffinityTopology 要求 topologyKey 只能是 kubernetes.io/hostname。
+
+## 参考资料
+1. [Node affinity and NodeSelector](https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/nodeaffinity.md)
+2. [Inter-pod topological affinity and anti-affinity](https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/podaffinity.md)
+
+3. [Assigning Pods to Nodes --Kubernetes Documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)
+4. 
 
 ## 参与贡献
 
