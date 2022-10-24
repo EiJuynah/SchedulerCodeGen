@@ -41,7 +41,7 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
 
 ### 工作流
 
-![](docs/pic/scgen泳道图.png)
+![](docs/pic/scgen泳道图.jpg)
 
 ## sclang语法介绍
 
