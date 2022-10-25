@@ -55,3 +55,20 @@ func ParseStatement(statement string) template.MatchRes {
 
 	return matchRes
 }
+
+//正则表达式分割字符串
+//将 aaaOPbbb 字符串，分割为aaa，OP， bbb三个字段
+func SplitStringByOP(statement string, OP string) []string {
+	//res := make([]string, 3)
+	regstr := `(\w+)` + OP + `(\w+)`
+	reg := regexp.MustCompile(regstr)
+	if reg == nil {
+		fmt.Println("syntax err")
+	}
+	res := reg.FindAllStringSubmatch(statement, -1)
+	if res[0][1] == "" && res[0][2] == "" {
+		fmt.Println("statement input err")
+	}
+	return []string{res[0][1], res[0][2]}
+
+}

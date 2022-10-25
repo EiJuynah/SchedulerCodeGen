@@ -11,7 +11,8 @@
 
 scgen（未取名），是一个针对kubernetes调度器配置文件生成的代码生成器。针对具体的pod，支持读取编写好的结构化的sclang，
 向yaml调度配置文件插入调度约束。
-该代码生成器主要基于Golang开发，作为kubernetes的插件使用。用户需要根据调度规则编写sclang配置文件，再使用kubectl命令行操作，生成具体的调度文件。
+该代码生成器主要基于Golang开发，作为kubernetes的插件使用。
+用户需要根据调度规则编写sclang配置文件，再使用kubectl命令行操作，生成具体的调度文件。
 
 ## 程序框架与运行流程
 
@@ -155,8 +156,10 @@ kubectl scgen -name=appa
 可以发现在同目录已经生成了新的配置文件newpod.yaml
 
 ## 说明
+### kubernetes对象解析
+### topologyKey
+在Affinity中，
 
-### topicalkey
 topical的默认配置在
 原则上，topologyKey 可以是任何合法的标签键。出于性能和安全原因，topologyKey 有一些限制：
 
