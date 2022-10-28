@@ -41,12 +41,21 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
 - **代码生成模块**将优化完成的kubenetes资源对象配置生成yaml文件
 
   ![scgen逻辑架构](docs/pic/scgen逻辑架构.jpg)
+  ### 代码生成流程
+1. 读取sclang语句文件并转换成语法树SCST
+   读取在同目录的sclang文件，通过正则表达式进行语法分析，生成语法树，存储在模板中的数据结构中。
+2.  读取源yaml文件，转换成源语法树SST
+    通过读取源yaml文件，通过gopkg.in/yaml.v3包，直接将其k8s.io\core\specPod的模板。
+3. 将两棵语法树合并
+   模板中的语法树数据结构插入到源语法树中
+4. 输出合并后的语法树
+   将合并后的语法树转换成yaml
+#### 数据流
 
-### 数据流
 
 ![scgen数据流图](docs/pic/scgen数据流图.jpg)
 
-### 工作流
+#### 工作流
 
 ![scgen泳道图](docs/pic/scgen泳道图.jpg)
 
@@ -160,7 +169,7 @@ kubectl scgen -name=appa
 ### topologyKey
 在Affinity中，
 
-topical的默认配置在
+topology的默认配置在
 原则上，topologyKey 可以是任何合法的标签键。出于性能和安全原因，topologyKey 有一些限制：
 
 对于 Pod 亲和性而言，在 requiredDuringSchedulingIgnoredDuringExecution 和 preferredDuringSchedulingIgnoredDuringExecution 中，topologyKey 不允许为空。
