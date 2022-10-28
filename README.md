@@ -85,8 +85,8 @@ primaryPod与subPod通过label:value来指代唯一的pod
 |preferred| 倾向于去满足基于权重的约束                                       | preferred：80 |
 |weight| 在preferred字段中使用，表示权重                                | preferred：80 |
 |primaryPod| 需要插入约束的指定pod，使用label:value去指定，格式为`key:value`        | app:appa     |
-|configRelationship| pod之间的关系，为LabelSelectorOperator字段的缩略，in对应&，notin对应^ ||
-|subPod| 为一个列表，用`,`分割，表示需要和primaryPod产生关系的pod组               |app:appb|
+|configRelationship| pod之间的关系，为LabelSelectorOperator字段的缩略，in对应&，notin对应^ | A & B        |
+|subPod| 为一个列表，用`,`分割，表示需要和primaryPod产生关系的pod组               | app:appb     |
 
 ## 使用说明
 
