@@ -61,7 +61,7 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
 
 ## sclang语法介绍
 
-配置语言sclang为pod之间的配置关系的自然语言表示，覆盖k8s的亲和度关系与阿里的自定义调度规则
+配置语言sclang为pod之间的配置关系的简单语言表示，支持命题逻辑关系，覆盖k8s的亲和度关系与阿里的自定义调度规则
 
 该配置语言的语法为：
 每一行为一条语句，第一个单词为required或者preferred，表述配置关系是强制的还是只是倾向性；
@@ -79,14 +79,14 @@ primaryPod与subPod通过label:value来指代唯一的pod
 
 ### 字段描述
 
-| 字段 | 描述                   | 例子           |
-|---|----------------------|--------------|
-| required| cc                   | cc           |
-|preferred| xx                   | preferred：80 |
-|weight| 在preferred字段中使用，表示权重 | preferred：80 |
-|primaryPod|||
-|configRelationship|||
-|subPod||
+| 字段 | 描述                                                  | 例子           |
+|---|-----------------------------------------------------|--------------|
+| required| 一定要满足的条件约束                                          | required     |
+|preferred| 倾向于去满足基于权重的约束                                       | preferred：80 |
+|weight| 在preferred字段中使用，表示权重                                | preferred：80 |
+|primaryPod| 需要插入约束的指定pod，使用label:value去指定，格式为`key:value`        | app:appa     |
+|configRelationship| pod之间的关系，为LabelSelectorOperator字段的缩略，in对应&，notin对应^ ||
+|subPod| 为一个列表，用`,`分割，表示需要和primaryPod产生关系的pod组               |app:appb|
 
 ## 使用说明
 
