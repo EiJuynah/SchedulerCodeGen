@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func GetPodYaml(podName string) ([]byte, []byte) {
+func GetPodYamlbyName(podName string) ([]byte, []byte) {
 	//获取当前pod的配置信息，将其输出重定向到pod.yaml中
 	//kubectl get -o yaml pod {podname} > pod.yaml
 	//此时的commmand为Windows的cmd，如果是linux环境，换成 bin/bash
@@ -28,8 +28,37 @@ func GetPodYaml(podName string) ([]byte, []byte) {
 	return stdout.Bytes(), stderr.Bytes()
 }
 
+func GetPodYamlbylabel(labelpair string) ([]byte, []byte) {
+	//获取当前pod的配置信息，将其输出重定向到pod.yaml中
+	//kubectl get -o yaml pod {podname} > pod.yaml
+	//此时的commmand为Windows的cmd，如果是linux环境，换成 bin/bash
+	label := util.SplitStringByOP(labelpair, ":")
+	key := label[0]
+	value := label[1]
+	pair := key + "=" + value
+	cmd := exec.Command("cmd", "/c", "kubectl", "get", "-o", "yaml", "pod", "-l", pair, ">", "pod.yaml")
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout // 标准输出
+	cmd.Stderr = &stderr // 标准错误
+	err := cmd.Run()
+	//outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+	//fmt.Printf("out:\n%s\nerr:\n%s\n", outStr, errStr)
+	if err != nil {
+		log.Fatalf("cmd.Run() failed with %s\n", err)
+	}
+	return stdout.Bytes(), stderr.Bytes()
+}
+
 func AddAffinityByPodname(podName string, SCFilePath string) {
-	GetPodYaml(podName)
+	GetPodYamlbyName(podName)
+	DeletePodStatusFromYaml(".\\pod.yaml", ".\\temp.yaml")
+	util.DeleteFile(".\\pod.yaml")
+	InsertYamlbyTxtstatement(SCFilePath, ".\\temp.yaml", ".\\newpod.yaml")
+	util.DeleteFile(".\\temp.yaml")
+}
+
+func AddAffinityByLabel(labelpair string, SCFilePath string) {
+	GetPodYamlbylabel(labelpair)
 	DeletePodStatusFromYaml(".\\pod.yaml", ".\\temp.yaml")
 	util.DeleteFile(".\\pod.yaml")
 	InsertYamlbyTxtstatement(SCFilePath, ".\\temp.yaml", ".\\newpod.yaml")

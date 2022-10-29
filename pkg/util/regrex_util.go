@@ -63,14 +63,16 @@ func RandFileName(fileName string) string {
 	return randStr + filepath.Ext(fileName)
 }
 
-//正则表达式分割字符串
-//将 aaaOPbbb 字符串，分割为aaa，OP， bbb三个字段
+// 正则表达式分割字符串
+// 将 aaaOPbbb 字符串，分割为aaa，OP， bbb三个字段
+// return {key,value}
 func SplitStringByOP(statement string, OP string) []string {
 	//res := make([]string, 3)
 	regstr := `(\w+)` + OP + `(\w+)`
 	reg := regexp.MustCompile(regstr)
 	if reg == nil {
 		fmt.Println("syntax err")
+		return nil
 	}
 	res := reg.FindAllStringSubmatch(statement, -1)
 	if res[0][1] == "" && res[0][2] == "" {
