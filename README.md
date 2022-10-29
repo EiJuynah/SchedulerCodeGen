@@ -80,21 +80,21 @@ primaryPod与subPod通过label:value来指代唯一的pod
 
 ### 字段描述
 
-| 字段 | 描述                                                  | 例子           |
-|---|-----------------------------------------------------|--------------|
-| required| 一定要满足的条件约束                                          | required     |
-|preferred| 倾向于去满足基于权重的约束                                       | preferred：80 |
-|weight| 在preferred字段中使用，表示权重                                | preferred：80 |
-|primaryPod| 需要插入约束的指定pod，使用label:value去指定，格式为`key:value`        | app:appa     |
-|configRelationship| pod之间的关系，为LabelSelectorOperator字段的缩略，in对应&，notin对应^ | A & B        |
-|subPod| 为一个列表，用`,`分割，表示需要和primaryPod产生关系的pod组               | app:appb     |
+| 字段 | 描述                                                            | 例子           |
+|---|---------------------------------------------------------------|--------------|
+| required| 一定要满足的条件约束,为RequiredDuringSchedulingIgnoredDuringExecution    | required     |
+|preferred| 倾向于去满足基于权重的约束，PreferredDuringSchedulingIgnoredDuringExecution | preferred：80 |
+|weight| 在preferred字段中使用，表示权重，范围为1-100                                 | preferred：80 |
+|primaryPod| 需要插入约束的指定pod，使用label:value去指定，格式为`key:value`                  | app:appa     |
+|configRelationship| pod之间的关系，为LabelSelectorOperator字段的缩略，in对应&，notin对应^           | A & B        |
+|subPod| 为一个列表，用`,`分割，表示需要和primaryPod产生关系的pod组                         | app:appb     |
 
 ## 使用说明
 
 下面以部署一个nginx应用为例，介绍配置约束、生成yaml的流程。
 ### 1. 构建项目
 
-项目基于GO1.19开发，为适配kubectl的插件。建议本地有高于GO1.19版本的Go环境,同时本机需要安装kubectl。
+项目基于GO1.19开发，为适配kubectl的插件。建议本地有高于GO1.19版本的Go环境,同时本机需要安装Control Plane Components与kubectl。
 
 #### 1.1获取源码
 从sole的repo中获取项目源码  

@@ -8,7 +8,7 @@ import (
 	"os/exec"
 )
 
-var VERSION = "1.01"
+var VERSION = "1.04"
 
 func main() {
 	var podName = flag.String("name", "", "Input Pod Name")

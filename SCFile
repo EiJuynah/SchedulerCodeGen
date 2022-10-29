@@ -1,1 +1,2 @@
 required: app:appa ^ app:appb
+required: app:appa & app:appc
