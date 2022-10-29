@@ -1,13 +1,13 @@
 kind: Pod
 apiVersion: v1
 metadata:
-    name: appb
+    name: appa
     namespace: default
     uid: a8c5dba1-c6e5-41af-aa42-9d864590046c
-    resourceVersion: "326717"
+    resourceVersion: "345010"
     creationTimestamp: 2022-10-19T12:03:23Z
     labels:
-        app: appb
+        app: appa
     annotations:
         kubectl.kubernetes.io/last-applied-configuration: |
             {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"labels":{"app":"appa"},"name":"appa","namespace":"default"},"spec":{"containers":[{"image":"nginx:alpine","name":"nginx","ports":[{"containerPort":80}]}]}}
@@ -52,7 +52,7 @@ spec:
     nodeName: minikube
     securityContext: {}
     affinity:
-        podAffinity:
+        podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
                 - labelSelector:
                     matchLabels:
@@ -63,60 +63,6 @@ spec:
                           values:
                             - appb
                   topologyKey: kubernetes.io/hostname
-            preferredDuringSchedulingIgnoredDuringExecution:
-                - weight: 80
-                  podAffinityTerm:
-                    labelSelector:
-                        matchLabels:
-                            app: appa
-                        matchExpressions:
-                            - key: app
-                              operator: In
-                              values:
-                                - appe
-                    topologyKey: kubernetes.io/hostname
-                - weight: 60
-                  podAffinityTerm:
-                    labelSelector:
-                        matchLabels:
-                            app: appa
-                        matchExpressions:
-                            - key: app
-                              operator: In
-                              values:
-                                - appf
-                            - key: app
-                              operator: In
-                              values:
-                                - appg
-                    topologyKey: kubernetes.io/hostname
-        podAntiAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                        app: appa
-                    matchExpressions:
-                        - key: app
-                          operator: In
-                          values:
-                            - appc
-                        - key: app
-                          operator: In
-                          values:
-                            - appd
-                  topologyKey: kubernetes.io/hostname
-            preferredDuringSchedulingIgnoredDuringExecution:
-                - weight: 40
-                  podAffinityTerm:
-                    labelSelector:
-                        matchLabels:
-                            app: appa
-                        matchExpressions:
-                            - key: app
-                              operator: In
-                              values:
-                                - apph
-                    topologyKey: kubernetes.io/hostname
     schedulerName: default-scheduler
     tolerations:
         - key: node.kubernetes.io/not-ready
