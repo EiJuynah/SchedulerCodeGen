@@ -1,2 +1,5 @@
-required: app:appa ^ app:appb
-required: app:appa & app:appc
+required: app:appa & app:appb
+required: app:appa ^ app:appc,app:appd
+preferred:80 app:appa & app:appe
+preferred:60 app:appa & app:appf,app:appg
+preferred:40 app:appa ^ app:apph

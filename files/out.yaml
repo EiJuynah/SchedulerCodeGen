@@ -9,69 +9,64 @@ spec:
             requiredDuringSchedulingIgnoredDuringExecution:
                 - labelSelector:
                     matchLabels:
-                        app: appA
+                        app: appa
                     matchExpressions:
                         - key: app
                           operator: In
                           values:
-                            - appB,appE,appC
-                        - key: infra
-                          operator: In
-                          values:
-                            - ha,hb,hc
-
+                            - appb , appc , appd
                   topologyKey: kubernetes.io/hostname
             preferredDuringSchedulingIgnoredDuringExecution:
                 - weight: 80
                   podAffinityTerm:
                     labelSelector:
                         matchLabels:
-                            app: appA
+                            app: appa
                         matchExpressions:
                             - key: app
                               operator: In
                               values:
-                                - appE
+                                - appe
                     topologyKey: kubernetes.io/hostname
                 - weight: 60
                   podAffinityTerm:
                     labelSelector:
                         matchLabels:
-                            app: appA
+                            app: appa
                         matchExpressions:
                             - key: app
                               operator: In
                               values:
-                                - appF
+                                - appf
                             - key: app
                               operator: In
                               values:
-                                - appG
+                                - appg
                     topologyKey: kubernetes.io/hostname
         podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
                 - labelSelector:
                     matchLabels:
-                        app: appA
+                        app: appa
                     matchExpressions:
                         - key: app
                           operator: In
                           values:
-                            - appC
+                            - appc
                         - key: app
                           operator: In
                           values:
-                            - appD
+                            - appd
                   topologyKey: kubernetes.io/hostname
             preferredDuringSchedulingIgnoredDuringExecution:
                 - weight: 40
                   podAffinityTerm:
                     labelSelector:
                         matchLabels:
-                            app: appA
+                            app: appa
                         matchExpressions:
                             - key: app
                               operator: In
                               values:
-                                - apH
+                                - apph
                     topologyKey: kubernetes.io/hostname

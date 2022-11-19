@@ -1,7 +1,7 @@
 package util
 
 import (
-	template2 "CodeGenerationGo/pkg/template"
+	"CodeGenerationGo/pkg/template"
 	"encoding/json"
 	"fmt"
 	"gopkg.in/yaml.v3"
@@ -11,12 +11,12 @@ import (
 	"os"
 )
 
-func ReadmatchlsrFile(path string) (*template2.LabelSelectorRequirement, error) {
+func ReadmatchlsrFile(path string) (*template.LabelSelectorRequirement, error) {
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	var conf template2.LabelSelectorRequirement
+	var conf template.LabelSelectorRequirement
 	err = yaml.Unmarshal(buf, &conf)
 	if err != nil {
 		return nil, fmt.Errorf("in file %q: %v", path, err)
@@ -25,12 +25,12 @@ func ReadmatchlsrFile(path string) (*template2.LabelSelectorRequirement, error) 
 	return &conf, nil
 }
 
-func ReadAffinityYamlFile(path string) (*template2.Affinity, error) {
+func ReadAffinityYamlFile(path string) (*template.Affinity, error) {
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	var conf template2.Affinity
+	var conf template.Affinity
 	err = yaml.Unmarshal(buf, &conf)
 	if err != nil {
 		return nil, fmt.Errorf("in file %q: %v", path, err)
@@ -39,12 +39,12 @@ func ReadAffinityYamlFile(path string) (*template2.Affinity, error) {
 	return &conf, nil
 }
 
-func ReadPodYamlFile(path string) (*template2.Pod, error) {
+func ReadPodYamlFile(path string) (*template.Pod, error) {
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	var conf template2.Pod
+	var conf template.Pod
 	err = yaml.Unmarshal(buf, &conf)
 	if err != nil {
 		return nil, fmt.Errorf("in file %q: %v", path, err)

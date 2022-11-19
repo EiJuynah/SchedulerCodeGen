@@ -133,10 +133,10 @@ func insertAffinity2Yaml(statelist []string, sourcePath string, outPath string) 
 //
 // }
 
-// 根据
-func InsertYamlbyTxtstatement(statesfile string, sourcePath string, outPath string) {
+// 根据scfile的sclang，读取源yaml文件，生成outpath插入过affinity的yaml文件
+func InsertYamlbyTxtstatement(scfilePath string, sourcePath string, outPath string) {
 	var statements []string
-	file, err := os.Open(statesfile)
+	file, err := os.Open(scfilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
