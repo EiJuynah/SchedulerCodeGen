@@ -42,15 +42,16 @@ func ParseStatement(statement string) template.MatchRes {
 	}
 
 	matches := make([]template.LabelSelectorRequirement, 0)
+
+	var match template.LabelSelectorRequirement
+	//key 是第一个元素的key值
+	match.Key = result1[0][1]
+	match.Operator = matchRes.Relationship
 	for _, element := range result2 {
-		var match template.LabelSelectorRequirement
-		match.Key = element[1]
 		match.Values = append(match.Values, element[2])
-		match.Operator = matchRes.Relationship
-
-		matches = append(matches, match)
-
 	}
+
+	matches = append(matches, match)
 	matchRes.MatchExpressions = matches
 
 	return matchRes

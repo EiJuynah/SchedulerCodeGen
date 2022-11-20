@@ -11,10 +11,30 @@ spec:
                     matchLabels:
                         app: appa
                     matchExpressions:
-                        - key: app
+                        - key: required
                           operator: In
                           values:
-                            - appb , appc , appd
+                            - appb
+                  topologyKey: kubernetes.io/hostname
+                - labelSelector:
+                    matchLabels:
+                        app: appa
+                    matchExpressions:
+                        - key: required
+                          operator: In
+                          values:
+                            - appc
+                            - appf
+                  topologyKey: kubernetes.io/hostname
+                - labelSelector:
+                    matchLabels:
+                        app: appa
+                    matchExpressions:
+                        - key: required
+                          operator: In
+                          values:
+                            - wr
+                            - sdf
                   topologyKey: kubernetes.io/hostname
             preferredDuringSchedulingIgnoredDuringExecution:
                 - weight: 80
@@ -23,7 +43,7 @@ spec:
                         matchLabels:
                             app: appa
                         matchExpressions:
-                            - key: app
+                            - key: preferred
                               operator: In
                               values:
                                 - appe
@@ -34,13 +54,10 @@ spec:
                         matchLabels:
                             app: appa
                         matchExpressions:
-                            - key: app
+                            - key: preferred
                               operator: In
                               values:
                                 - appf
-                            - key: app
-                              operator: In
-                              values:
                                 - appg
                     topologyKey: kubernetes.io/hostname
         podAntiAffinity:
@@ -49,13 +66,10 @@ spec:
                     matchLabels:
                         app: appa
                     matchExpressions:
-                        - key: app
+                        - key: required
                           operator: In
                           values:
                             - appc
-                        - key: app
-                          operator: In
-                          values:
                             - appd
                   topologyKey: kubernetes.io/hostname
             preferredDuringSchedulingIgnoredDuringExecution:
@@ -65,7 +79,7 @@ spec:
                         matchLabels:
                             app: appa
                         matchExpressions:
-                            - key: app
+                            - key: preferred
                               operator: In
                               values:
                                 - apph
