@@ -1,0 +1,98 @@
+kind: pod
+apiVersion: v1
+metadata:
+    name: app_test
+spec:
+    containers: []
+    affinity:
+        podAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                        app: appa
+                    matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                            - appb
+                  topologyKey: kubernetes.io/hostname
+                - labelSelector:
+                    matchLabels:
+                        app: appa
+                    matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                            - appc
+                        - key: app
+                          operator: In
+                          values:
+                            - appf
+                  topologyKey: kubernetes.io/hostname
+                - labelSelector:
+                    matchLabels:
+                        app: appa
+                    matchExpressions:
+                        - key: hpc
+                          operator: In
+                          values:
+                            - wr
+                        - key: hpc
+                          operator: In
+                          values:
+                            - sdf
+                  topologyKey: kubernetes.io/hostname
+            preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 80
+                  podAffinityTerm:
+                    labelSelector:
+                        matchLabels:
+                            app: appa
+                        matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                                - appe
+                    topologyKey: kubernetes.io/hostname
+                - weight: 60
+                  podAffinityTerm:
+                    labelSelector:
+                        matchLabels:
+                            app: appa
+                        matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                                - appf
+                            - key: app
+                              operator: In
+                              values:
+                                - appg
+                    topologyKey: kubernetes.io/hostname
+        podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                        app: appa
+                    matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                            - appc
+                        - key: app
+                          operator: In
+                          values:
+                            - appd
+                  topologyKey: kubernetes.io/hostname
+            preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 40
+                  podAffinityTerm:
+                    labelSelector:
+                        matchLabels:
+                            app: appa
+                        matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                                - apph
+                    topologyKey: kubernetes.io/hostname
