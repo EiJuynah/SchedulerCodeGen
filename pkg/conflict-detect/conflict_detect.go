@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mitchellh/go-sat"
 	"github.com/mitchellh/go-sat/cnf"
+	"github.com/mitchellh/go-sat/dimacs"
 )
 
 //输入为kubernetes pod对象
@@ -12,10 +13,10 @@ import (
 //@description 将pod对象中的affinity约束，转换成形式化的约束
 //@auth
 
-func PodAffinity2Stringclause(pod template.Pod) [][][]string {
+func PodAffinity2StrClauses(pod template.Pod) [][][]string {
 	//name := pod.ObjectMeta.Name
 	//
-	//formula := new(cnf.Formula)
+
 	var clause [][][]string
 	//针对affinity
 	for _, require := range pod.Spec.Affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution {
@@ -137,17 +138,21 @@ func CNFExample() {
 	//   x4 = false
 }
 
-func CNF2Dimacs() {
+func StrClauses2CNF() {
+	//formula := new(cnf.Formula)
 
 }
 
-func Te() {
-	var clause [][]string
-	clause = append(clause, []string{"wer", "werwe", "wer"})
-	for _, s := range clause {
-		for _, d := range s {
-			fmt.Println(d)
+func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
+	set := make(map[cnf.Lit]bool)
+	for _, clause := range formula {
+		for _, lit := range clause {
+			set[lit] = true
 		}
-
 	}
+	variables := len(set)
+	clauses := len(formula)
+	problem := dimacs.Problem{Formula: formula, Variables: variables, Clauses: clauses}
+
+	return problem
 }
