@@ -11,7 +11,7 @@ spec:
                     matchLabels:
                         app: appa
                     matchExpressions:
-                        - key: required
+                        - key: app
                           operator: In
                           values:
                             - appb
@@ -20,7 +20,7 @@ spec:
                     matchLabels:
                         app: appa
                     matchExpressions:
-                        - key: required
+                        - key: app
                           operator: In
                           values:
                             - appc
@@ -30,7 +30,7 @@ spec:
                     matchLabels:
                         app: appa
                     matchExpressions:
-                        - key: required
+                        - key: hpc
                           operator: In
                           values:
                             - wr
@@ -43,7 +43,7 @@ spec:
                         matchLabels:
                             app: appa
                         matchExpressions:
-                            - key: preferred
+                            - key: app
                               operator: In
                               values:
                                 - appe
@@ -54,7 +54,7 @@ spec:
                         matchLabels:
                             app: appa
                         matchExpressions:
-                            - key: preferred
+                            - key: app
                               operator: In
                               values:
                                 - appf
@@ -66,7 +66,7 @@ spec:
                     matchLabels:
                         app: appa
                     matchExpressions:
-                        - key: required
+                        - key: app
                           operator: In
                           values:
                             - appc
@@ -79,7 +79,7 @@ spec:
                         matchLabels:
                             app: appa
                         matchExpressions:
-                            - key: preferred
+                            - key: app
                               operator: In
                               values:
                                 - apph

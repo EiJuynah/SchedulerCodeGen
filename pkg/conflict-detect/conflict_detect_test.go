@@ -22,3 +22,15 @@ func TestPodAffinity2Stringclause(t *testing.T) {
 	}
 
 }
+
+func TestStrClauses2CNF(t *testing.T) {
+	pod, err := util.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
+	if err != nil {
+		fmt.Println(err)
+	}
+	cp := PodAffinity2StrClauses(*pod)
+
+	a := StrClauses2CNF(cp)
+
+	fmt.Println(a)
+}

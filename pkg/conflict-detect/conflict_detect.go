@@ -138,9 +138,26 @@ func CNFExample() {
 	//   x4 = false
 }
 
-func StrClauses2CNF() {
-	//formula := new(cnf.Formula)
+func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
+	formula := new(cnf.Formula)
+	//该map存储将value与x1,x2,x3...等cnf中的变量的映射关系
+	valueName2LitMap := make(map[string]int)
+	for _, scheduleState := range strclauses {
+		for _, matchExpression := range scheduleState {
+			//切片第一为符号位
+			//sign_bit := matchExpression[0]
 
+			for i := 1; i < len(matchExpression); i++ {
+				value := matchExpression[i]
+				_, ok := valueName2LitMap[value]
+				if !ok {
+					valueName2LitMap[value] = len(valueName2LitMap)
+				}
+			}
+		}
+	}
+
+	return formula
 }
 
 func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
@@ -152,7 +169,18 @@ func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
 	}
 	variables := len(set)
 	clauses := len(formula)
-	problem := dimacs.Problem{Formula: formula, Variables: variables, Clauses: clauses}
+	problem := dimacs.Problem{
+		Formula:   formula,
+		Variables: variables,
+		Clauses:   clauses}
 
 	return problem
+}
+
+// 使用go 提供的sat solver去求解满足性问题
+func CNFSolve(formula cnf.Formula) bool {
+	solver := sat.New()
+	solver.AddFormula(formula)
+
+	return solver.Solve()
 }
