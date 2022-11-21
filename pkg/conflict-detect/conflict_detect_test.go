@@ -34,3 +34,16 @@ func TestStrClauses2CNF(t *testing.T) {
 
 	fmt.Println(a)
 }
+
+func TestCNFExample(t *testing.T) {
+	CNFExample()
+}
+
+func TestSATPodAffinity(t *testing.T) {
+	pod, err := util.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(SATPodAffinity(*pod))
+}

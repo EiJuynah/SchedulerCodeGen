@@ -6,6 +6,7 @@ import (
 	"github.com/mitchellh/go-sat"
 	"github.com/mitchellh/go-sat/cnf"
 	"github.com/mitchellh/go-sat/dimacs"
+	"strconv"
 )
 
 //输入为kubernetes pod对象
@@ -53,7 +54,7 @@ func PodAffinity2StrClauses(pod template.Pod) [][][]string {
 	}
 
 	//针对antiaffinity
-	for _, require := range pod.Spec.Affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution {
+	for _, require := range pod.Spec.Affinity.PodAntiAffinity.RequiredDuringSchedulingIgnoredDuringExecution {
 		//require.LabelSelector.MatchLabels
 		var subclause [][]string
 		for _, expression := range require.LabelSelector.MatchExpressions {
@@ -139,23 +140,38 @@ func CNFExample() {
 }
 
 func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
-	formula := new(cnf.Formula)
+	var formulaInt [][]int
 	//该map存储将value与x1,x2,x3...等cnf中的变量的映射关系
 	valueName2LitMap := make(map[string]int)
 	for _, scheduleState := range strclauses {
 		for _, matchExpression := range scheduleState {
 			//切片第一为符号位
-			//sign_bit := matchExpression[0]
-
+			sign_bit := matchExpression[0]
+			valueName2LitMap["sign_bit"], _ = strconv.Atoi(sign_bit)
+			//将每句MacthExpression映射
 			for i := 1; i < len(matchExpression); i++ {
+
 				value := matchExpression[i]
 				_, ok := valueName2LitMap[value]
 				if !ok {
 					valueName2LitMap[value] = len(valueName2LitMap)
 				}
 			}
+			var clauseInt []int
+			for i := 1; i < len(matchExpression); i++ {
+				clauseInt = append(clauseInt, valueName2LitMap[matchExpression[i]])
+			}
+			if sign_bit == "-1" {
+				for i := 0; i < len(clauseInt); i++ {
+					clauseInt[i] = -clauseInt[i]
+				}
+			}
+
+			formulaInt = append(formulaInt, clauseInt)
 		}
 	}
+
+	formula := cnf.NewFormulaFromInts(formulaInt)
 
 	return formula
 }
@@ -177,10 +193,16 @@ func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
 	return problem
 }
 
-// 使用go 提供的sat solver去求解满足性问题
+// 使用go提供的sat solver去求解满足性问题
 func CNFSolve(formula cnf.Formula) bool {
 	solver := sat.New()
 	solver.AddFormula(formula)
 
 	return solver.Solve()
+}
+
+func SATPodAffinity(pod template.Pod) bool {
+	strclauses := PodAffinity2StrClauses(pod)
+	problem := StrClauses2CNF(strclauses)
+	return CNFSolve(problem)
 }
