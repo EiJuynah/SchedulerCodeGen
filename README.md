@@ -38,7 +38,8 @@ scgen（未取名），是一个针对kubernetes调度器配置文件生成的�
         - 多个matchExpressions：与
         - matchexpression中同个label下的slice：或
 - **冲突检测模块**将静态分析配置有冲突的语句，并报出冲突提示
-    1. 配置的逻辑冲突。如在一个文件中 a in b，a notin b同时出现，需要报出错误
+    1. 配置的逻辑冲突。如在一个文件中 a in b，a notin b同时出现，需要报出错误。
+  详见[冲突检测模块介绍](docs/intro_冲突检测模块.md)
 - **代码生成模块**将优化完成的kubenetes资源对象配置生成yaml文件
 
   ![scgen逻辑架构](docs/pic/scgen逻辑架构.jpg)
@@ -164,6 +165,8 @@ kubectl scgen -name=appa
 ```
 
 可以发现在同目录已经生成了新的配置文件newpod.yaml
+
+
 
 ## 说明
 ### kubernetes对象解析

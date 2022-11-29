@@ -72,6 +72,15 @@ spec:
                             - appc
                             - appd
                   topologyKey: kubernetes.io/hostname
+                - labelSelector:
+                    matchLabels:
+                        app: appa
+                    matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                            - appb
+                  topologyKey: kubernetes.io/hostname
             preferredDuringSchedulingIgnoredDuringExecution:
                 - weight: 40
                   podAffinityTerm:

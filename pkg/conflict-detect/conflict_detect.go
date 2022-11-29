@@ -193,7 +193,12 @@ func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
 	return problem
 }
 
+//input:mitchellh/go-sat提供的cnf.Formula
 // 使用go提供的sat solver去求解满足性问题
+//当前的求解器是go提供的mitchellh/go-sat
+//求解器可替换
+//
+
 func CNFSolve(formula cnf.Formula) bool {
 	solver := sat.New()
 	solver.AddFormula(formula)
@@ -204,5 +209,6 @@ func CNFSolve(formula cnf.Formula) bool {
 func SATPodAffinity(pod template.Pod) bool {
 	strclauses := PodAffinity2StrClauses(pod)
 	problem := StrClauses2CNF(strclauses)
+
 	return CNFSolve(problem)
 }
