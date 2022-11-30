@@ -1,7 +1,8 @@
 package configen
 
 import (
-	"CodeGenerationGo/pkg/util"
+	"CodeGenerationGo/pkg/statement-analysis"
+	"CodeGenerationGo/pkg/yaml-process"
 	"bytes"
 	"fmt"
 	"log"
@@ -32,7 +33,7 @@ func GetPodYamlbylabel(labelpair string) ([]byte, []byte) {
 	//获取当前pod的配置信息，将其输出重定向到pod.yaml中
 	//kubectl get -o yaml pod {podname} > pod.yaml
 	//此时的commmand为Windows的cmd，如果是linux环境，换成 bin/bash
-	label := util.SplitStringByOP(labelpair, ":")
+	label := statement_analysis.SplitStringByOP(labelpair, ":")
 	key := label[0]
 	value := label[1]
 	pair := key + "=" + value
@@ -97,17 +98,17 @@ func Reschedule(podName string) {
 func AddAffinityByPodname(podName string, SCFilePath string) {
 	GetPodYamlbyName(podName)
 	DeletePodStatusFromYaml(".\\pod.yaml", ".\\temp.yaml")
-	util.DeleteFile(".\\pod.yaml")
+	yaml_process.DeleteFile(".\\pod.yaml")
 	InsertYamlbyTxtstatement(SCFilePath, ".\\temp.yaml", ".\\newpod.yaml")
-	util.DeleteFile(".\\temp.yaml")
+	yaml_process.DeleteFile(".\\temp.yaml")
 }
 
 func AddAffinityByLabel(labelpair string, SCFilePath string) {
 	GetPodYamlbylabel(labelpair)
 	DeletePodStatusFromYaml(".\\pod.yaml", ".\\temp.yaml")
-	util.DeleteFile(".\\pod.yaml")
+	yaml_process.DeleteFile(".\\pod.yaml")
 	InsertYamlbyTxtstatement(SCFilePath, ".\\temp.yaml", ".\\newpod.yaml")
-	util.DeleteFile(".\\temp.yaml")
+	yaml_process.DeleteFile(".\\temp.yaml")
 }
 
 func DeletePod(podName string) {

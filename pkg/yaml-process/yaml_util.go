@@ -1,4 +1,4 @@
-package util
+package yaml_process
 
 import (
 	"CodeGenerationGo/pkg/template"

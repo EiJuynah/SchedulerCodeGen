@@ -1,4 +1,4 @@
-package util
+package statement_analysis
 
 import (
 	"CodeGenerationGo/pkg/template"

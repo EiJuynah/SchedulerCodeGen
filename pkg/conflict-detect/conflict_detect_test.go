@@ -1,13 +1,13 @@
 package conflict_detect
 
 import (
-	"CodeGenerationGo/pkg/util"
+	"CodeGenerationGo/pkg/yaml-process"
 	"fmt"
 	"testing"
 )
 
 func TestPodAffinity2Stringclause(t *testing.T) {
-	pod, err := util.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
+	pod, err := yaml_process.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -24,7 +24,7 @@ func TestPodAffinity2Stringclause(t *testing.T) {
 }
 
 func TestStrClauses2CNF(t *testing.T) {
-	pod, err := util.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
+	pod, err := yaml_process.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -40,7 +40,7 @@ func TestCNFExample(t *testing.T) {
 }
 
 func TestSATPodAffinity(t *testing.T) {
-	pod, err := util.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
+	pod, err := yaml_process.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}

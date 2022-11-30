@@ -2,7 +2,7 @@ package configen
 
 import (
 	"CodeGenerationGo/pkg/template"
-	"CodeGenerationGo/pkg/util"
+	"CodeGenerationGo/pkg/yaml-process"
 	"bufio"
 	"fmt"
 	"gopkg.in/yaml.v3"
@@ -112,7 +112,7 @@ func insertAffinity2Yaml(statelist []string, sourcePath string, outPath string) 
 		InsertMatchRes2PodAffinity(&affinity, matches)
 	}
 
-	pod, _ := util.ReadPodYamlFile(sourcePath)
+	pod, _ := yaml_process.ReadPodYamlFile(sourcePath)
 	if pod.Spec.Affinity == nil {
 		pod.Spec.Affinity = &affinity
 	}
@@ -156,9 +156,9 @@ func InsertYamlbyTxtstatement(scfilePath string, sourcePath string, outPath stri
 }
 
 func DeletePodStatusFromYaml(sourcePath string, out string) {
-	pod, _ := util.ReadPodYamlFile(sourcePath)
+	pod, _ := yaml_process.ReadPodYamlFile(sourcePath)
 	deletePodStatus(pod)
-	util.WriteObject2Yaml(pod, out)
+	yaml_process.WriteObject2Yaml(pod, out)
 
 }
 

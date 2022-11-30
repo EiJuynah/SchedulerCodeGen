@@ -1,8 +1,8 @@
 package configen
 
 import (
+	"CodeGenerationGo/pkg/statement-analysis"
 	"CodeGenerationGo/pkg/template"
-	"CodeGenerationGo/pkg/util"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -30,7 +30,7 @@ func ParseStatement(statement string) template.MatchRes {
 	matchRes.Trendrule = result1[0][1]
 	matchRes.LabelKey = result1[0][3]
 	matchRes.Value = result1[0][4]
-	matchRes.Relationship = util.Relation2Opera(result1[0][5])
+	matchRes.Relationship = statement_analysis.Relation2Opera(result1[0][5])
 
 	if matchRes.Trendrule == "required" {
 		matchRes.Weight = -1
