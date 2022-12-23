@@ -5,7 +5,7 @@
 本文档包含了针对调度器配置的代码生成器的功能、架构以及使用方法介绍。
 
 项目源代码
-[System Optimazation Lab, ECNU / SchedulerCodeGen](https://gitee.com/solecnu/scheduler-code-gen)
+[System Optimazation Lab, ECNU / SchedulerCodeGen](https://jihulab.com/solecnu/scheduler-code-gen)
 
 ## 概述
 
