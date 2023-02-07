@@ -1,6 +1,6 @@
 package template
 
-type MatchRes struct {
+type PodAffinityMatchDto struct {
 	Trendrule        string
 	Weight           int
 	Relationship     LabelSelectorOperator

@@ -4,15 +4,10 @@ import (
 	"CodeGenerationGo/pkg/template"
 	"CodeGenerationGo/pkg/yaml-process"
 	"bufio"
-	"fmt"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 )
-
-func add() {
-	fmt.Println("111")
-}
 
 // 初始化affinity
 func AffinityInit() template.Affinity {
@@ -20,7 +15,7 @@ func AffinityInit() template.Affinity {
 	return affinity
 }
 
-func InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.MatchRes) template.Affinity {
+func InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.PodAffinityMatchDto) template.Affinity {
 	var labelSelector template.LabelSelector
 	labelSelector.MatchExpressions = matchRes.MatchExpressions
 	labelSelector.MatchLabels = make(map[string]string) //分配内存
@@ -104,44 +99,42 @@ func InsertMatchRes2PodAffinity(affinity *template.Affinity, matchRes template.M
 	return *affinity
 }
 
+//将sclang的语句，插入到现有的yaml文件中
 func insertAffinity2Yaml(statelist []string, sourcePath string, outPath string) {
 	var affinity template.Affinity
 	//将所有的语句串插入该affinity
+
+	//插入podAffinity与podAntiAffinity
 	for _, state := range statelist {
 		matches := ParseStatement(state)
 		InsertMatchRes2PodAffinity(&affinity, matches)
 	}
 
+	//读取源yaml文件的pod对象
+	//将Affinity插入到pod对象中
 	pod, _ := yaml_process.ReadPodYamlFile(sourcePath)
 	if pod.Spec.Affinity == nil {
 		pod.Spec.Affinity = &affinity
 	}
+	//再转换成yaml对象
 	yamlByte, _ := yaml.Marshal(pod)
-
+	//输出成yaml文件
 	if err := os.WriteFile(outPath, yamlByte, 0666); err != nil {
 		log.Fatal(err)
 	}
 }
 
-//	func YamlGen(states []string, sourcePath string, outPath string) {
-//		affinity := AffinityInit()
-//		for _, state := range states {
-//			match := ParseStatement(state)
-//			affinity = InsertMatchRes2Affinity(affinity, match)
-//		}
-//		InsertAffinity2Yaml(affinity, sourcePath, outPath)
-//
-// }
-
 // 根据scfile的sclang，读取源yaml文件，生成outpath插入过affinity的yaml文件
+//代码生成主方法
 func InsertYamlbyTxtstatement(scfilePath string, sourcePath string, outPath string) {
 	var statements []string
+	//读取scfile文件
 	file, err := os.Open(scfilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
+	//读取sclang语句
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		statements = append(statements, scanner.Text())
@@ -150,7 +143,7 @@ func InsertYamlbyTxtstatement(scfilePath string, sourcePath string, outPath stri
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-
+	//将sclang的语句，插入到现有的yaml文件中
 	insertAffinity2Yaml(statements, sourcePath, outPath)
 
 }

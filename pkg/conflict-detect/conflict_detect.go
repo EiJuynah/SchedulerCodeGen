@@ -6,6 +6,8 @@ import (
 	"github.com/mitchellh/go-sat"
 	"github.com/mitchellh/go-sat/cnf"
 	"github.com/mitchellh/go-sat/dimacs"
+	"log"
+	"os"
 	"strconv"
 )
 
@@ -201,6 +203,12 @@ func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
 
 func CNFSolve(formula cnf.Formula) bool {
 	solver := sat.New()
+	//开启日志，从日志中获取信息
+	//Trace和Tracer两个参数需要设置
+	//tracer使用log的Printf
+	solver.Trace = true
+	logs := log.New(os.Stdout, "SAT solver Log:", 0)
+	solver.Tracer = logs
 	solver.AddFormula(formula)
 
 	return solver.Solve()

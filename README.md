@@ -213,7 +213,9 @@ topology的默认配置在
 ## 参考资料
 1. [Node affinity and NodeSelector](https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/nodeaffinity.md)
 2. [Inter-pod topological affinity and anti-affinity](https://github.com/kubernetes/design-proposals-archive/blob/main/scheduling/podaffinity.md)
-
 3. [Assigning Pods to Nodes --Kubernetes Documentation](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)
+4. [Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
 
 
+## 管理员联系方式
+Yujie Han 51255903081@stu.ecnu.edu.cn

@@ -10,7 +10,7 @@ import (
 
 // 将输入的语句转变成MatchRes格式
 // 一条输入语句转换成一个MatchRes
-func ParseStatement(statement string) template.MatchRes {
+func ParseStatement(statement string) template.PodAffinityMatchDto {
 	//statement example:  required: app:appA & app:appB
 	//result[0] : required: app:appA
 	//Parse the regular expression and return the interpreter if successful
@@ -25,7 +25,7 @@ func ParseStatement(statement string) template.MatchRes {
 	result1 := reg1.FindAllStringSubmatch(statement, -1)
 	result2 := reg2.FindAllStringSubmatch(result1[0][6], -1)
 
-	var matchRes template.MatchRes
+	var matchRes template.PodAffinityMatchDto
 
 	matchRes.Trendrule = result1[0][1]
 	matchRes.LabelKey = result1[0][3]
