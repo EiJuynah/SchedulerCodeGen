@@ -7,7 +7,7 @@ import (
 )
 
 func TestPodAffinity2Stringclause(t *testing.T) {
-	pjtpath := "D:\\code\\GO\\"
+	pjtpath := "E://project//"
 	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
@@ -25,16 +25,18 @@ func TestPodAffinity2Stringclause(t *testing.T) {
 }
 
 func TestStrClauses2CNF(t *testing.T) {
-	pjtpath := "D:\\code\\GO\\"
+	pjtpath := "E://project//"
 	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}
 	cp := PodAffinity2StrClauses(*pod)
 
-	a := StrClauses2CNF(cp)
+	a, fmap := StrClauses2CNF(cp)
 
 	fmt.Println(a)
+
+	fmt.Println(fmap)
 }
 
 func TestCNFExample(t *testing.T) {
@@ -42,7 +44,7 @@ func TestCNFExample(t *testing.T) {
 }
 
 func TestSATPodAffinity(t *testing.T) {
-	pjtpath := "D:\\code\\GO\\"
+	pjtpath := "E://project//"
 	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)

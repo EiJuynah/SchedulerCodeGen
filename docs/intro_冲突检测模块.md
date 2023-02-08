@@ -93,3 +93,7 @@ A1 & A2 & A3 & ...
 
 1. 若之后的需求中有如“CpuSet=1“类似的约束，需要重新建模，使用谓词逻辑去表达，转换成SMT。使用SMT solver去求解。
 2. 无冲突定位功能
+
+## 参考链接
+1.[Conflict-driven clause learning](https://en.wikipedia.org/wiki/Conflict-driven_clause_learning)
+2.[tutorial: Conflict Driven Clause Learning University of Washington | CSE 442](https://cse442-17f.github.io/Conflict-Driven-Clause-Learning/)

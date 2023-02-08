@@ -141,8 +141,11 @@ func CNFExample() {
 	//   x4 = false
 }
 
-func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
-	var formulaInt [][]int
+// return：
+// 1：clause集formula
+// 2：str与index的对应map
+func StrClauses2CNF(strclauses [][][]string) (cnf.Formula, map[int]string) {
+	var formulaIntMap [][]int
 	//该map存储将value与x1,x2,x3...等cnf中的变量的映射关系
 	valueName2LitMap := make(map[string]int)
 	for _, scheduleState := range strclauses {
@@ -169,13 +172,19 @@ func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
 				}
 			}
 
-			formulaInt = append(formulaInt, clauseInt)
+			formulaIntMap = append(formulaIntMap, clauseInt)
 		}
 	}
 
-	formula := cnf.NewFormulaFromInts(formulaInt)
+	//获得的x1，x2与对应字符串的key，vale反转字典，用与后续定位
+	Lit2StrMap := map[int]string{}
+	for k, v := range valueName2LitMap {
+		Lit2StrMap[v] = k
+	}
 
-	return formula
+	formula := cnf.NewFormulaFromInts(formulaIntMap)
+
+	return formula, Lit2StrMap
 }
 
 func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
@@ -216,7 +225,7 @@ func CNFSolve(formula cnf.Formula) bool {
 
 func SATPodAffinity(pod template.Pod) bool {
 	strclauses := PodAffinity2StrClauses(pod)
-	problem := StrClauses2CNF(strclauses)
+	problem, _ := StrClauses2CNF(strclauses)
 
 	return CNFSolve(problem)
 }
