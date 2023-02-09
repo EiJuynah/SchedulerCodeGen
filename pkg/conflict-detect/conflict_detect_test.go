@@ -49,6 +49,18 @@ func TestSATPodAffinity(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	res := SATPodAffinity(*pod)
+	fmt.Println(res)
+}
 
-	fmt.Println(SATPodAffinity(*pod))
+func TestAbaAba(t *testing.T) {
+	a := make(map[string]string)
+	a["e"] = "r"
+	a["c"] = "C"
+	a["x"] = "X"
+	for k, v := range a {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
+
 }

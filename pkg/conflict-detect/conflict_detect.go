@@ -21,10 +21,28 @@ func PodAffinity2StrClauses(pod template.Pod) [][][]string {
 	//
 
 	var clause [][][]string
-	//针对affinity
+	//针对PodAffinity
 	for _, require := range pod.Spec.Affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution {
 		//require.LabelSelector.MatchLabels
 		var subclause [][]string
+
+		//分析MatchLabels
+		//MatchLabel等与opt为In的MatchExpresssions,而且其中的values的数量只有一个
+		for k, v := range require.LabelSelector.MatchLabels {
+			key := k
+			values := v
+			subsubclause := []string{}
+
+			subsubclause = append(subsubclause, "1")
+
+			str := key + ":" + values
+			subsubclause = append(subsubclause, str)
+
+			subclause = append(subclause, subsubclause)
+
+		}
+
+		//分析MatchExpressions
 		for _, expression := range require.LabelSelector.MatchExpressions {
 
 			key := expression.Key
@@ -141,11 +159,8 @@ func CNFExample() {
 	//   x4 = false
 }
 
-// return：
-// 1：clause集formula
-// 2：str与index的对应map
-func StrClauses2CNF(strclauses [][][]string) (cnf.Formula, map[int]string) {
-	var formulaIntMap [][]int
+func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
+	var formulaInt [][]int
 	//该map存储将value与x1,x2,x3...等cnf中的变量的映射关系
 	valueName2LitMap := make(map[string]int)
 	for _, scheduleState := range strclauses {
@@ -154,6 +169,7 @@ func StrClauses2CNF(strclauses [][][]string) (cnf.Formula, map[int]string) {
 			sign_bit := matchExpression[0]
 			valueName2LitMap["sign_bit"], _ = strconv.Atoi(sign_bit)
 			//将每句MacthExpression映射
+			//从第1位开始
 			for i := 1; i < len(matchExpression); i++ {
 
 				value := matchExpression[i]
@@ -166,25 +182,27 @@ func StrClauses2CNF(strclauses [][][]string) (cnf.Formula, map[int]string) {
 			for i := 1; i < len(matchExpression); i++ {
 				clauseInt = append(clauseInt, valueName2LitMap[matchExpression[i]])
 			}
+
+			if sign_bit == "1" {
+				formulaInt = append(formulaInt, clauseInt)
+			}
+			//如果是NotIn，则按照德摩根定律，将每一个位反转，把每一个位并当成一个clause
 			if sign_bit == "-1" {
 				for i := 0; i < len(clauseInt); i++ {
 					clauseInt[i] = -clauseInt[i]
 				}
+				for ci := range clauseInt {
+					newClause := []int{ci}
+					formulaInt = append(formulaInt, newClause)
+				}
 			}
 
-			formulaIntMap = append(formulaIntMap, clauseInt)
 		}
 	}
 
-	//获得的x1，x2与对应字符串的key，vale反转字典，用与后续定位
-	Lit2StrMap := map[int]string{}
-	for k, v := range valueName2LitMap {
-		Lit2StrMap[v] = k
-	}
+	formula := cnf.NewFormulaFromInts(formulaInt)
 
-	formula := cnf.NewFormulaFromInts(formulaIntMap)
-
-	return formula, Lit2StrMap
+	return formula
 }
 
 func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
@@ -225,7 +243,7 @@ func CNFSolve(formula cnf.Formula) bool {
 
 func SATPodAffinity(pod template.Pod) bool {
 	strclauses := PodAffinity2StrClauses(pod)
-	problem, _ := StrClauses2CNF(strclauses)
+	problem := StrClauses2CNF(strclauses)
 
 	return CNFSolve(problem)
 }
