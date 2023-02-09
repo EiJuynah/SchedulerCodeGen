@@ -6,8 +6,6 @@ import (
 	"github.com/mitchellh/go-sat"
 	"github.com/mitchellh/go-sat/cnf"
 	"github.com/mitchellh/go-sat/dimacs"
-	"log"
-	"os"
 	"strconv"
 )
 
@@ -112,55 +110,11 @@ func PodAffinity2StrClauses(pod template.Pod) [][][]string {
 
 }
 
-func CNFExample() {
-	// Consider the example formula already in CNF.
-	//
-	// ( ¬x1 ∨ ¬x3 ∨ ¬x4 ) ∧ ( x2 ∨ x3 ∨ ¬x4 ) ∧
-	// ( x1 ∨ ¬x2 ∨ x4 ) ∧ ( x1 ∨ x3 ∨ x4 ) ∧ ( ¬x1 ∨ x2 ∨ ¬x3 )
-	// (¬x4)
-
-	// Represent each variable as an int where a negative value means negated
-	formula := cnf.NewFormulaFromInts([][]int{
-		[]int{-1, -3, -4},
-		[]int{2, 3, -4},
-		[]int{1, -2, 4},
-		[]int{1, 3, 4},
-		[]int{-1, 2, -3},
-		[]int{-4},
-	})
-
-	// Create a solver and add the formulas to solve
-	s := sat.New()
-	s.AddFormula(formula)
-
-	// For low level details on how a solution came to be:
-	// s.Trace = true
-	// s.Tracer = log.New(os.Stderr, "", log.LstdFlags)
-
-	// Solve it!
-	sat := s.Solve()
-
-	// Solution can be read from Assignments. The key is the variable
-	// (always positive) and the value is the value.
-	solution := s.Assignments()
-
-	fmt.Printf("Solved: %v\n", sat)
-	fmt.Printf("Solution:\n")
-	fmt.Printf("  x1 = %v\n", solution[1])
-	fmt.Printf("  x2 = %v\n", solution[2])
-	fmt.Printf("  x3 = %v\n", solution[3])
-	fmt.Printf("  x4 = %v\n", solution[4])
-	// Output:
-	// Solved: true
-	// Solution:
-	//   x1 = true
-	//   x2 = true
-	//   x3 = true
-	//   x4 = false
-}
-
-func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
-	var formulaInt [][]int
+// return：
+// 1：clause集formula
+// 2：str与index的对应map
+func StrClauses2CNF(strclauses [][][]string) (cnf.Formula, map[int]string) {
+	var formulaIntMap [][]int
 	//该map存储将value与x1,x2,x3...等cnf中的变量的映射关系
 	valueName2LitMap := make(map[string]int)
 	for _, scheduleState := range strclauses {
@@ -169,7 +123,6 @@ func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
 			sign_bit := matchExpression[0]
 			valueName2LitMap["sign_bit"], _ = strconv.Atoi(sign_bit)
 			//将每句MacthExpression映射
-			//从第1位开始
 			for i := 1; i < len(matchExpression); i++ {
 
 				value := matchExpression[i]
@@ -184,25 +137,33 @@ func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
 			}
 
 			if sign_bit == "1" {
-				formulaInt = append(formulaInt, clauseInt)
+				formulaIntMap = append(formulaIntMap, clauseInt)
 			}
-			//如果是NotIn，则按照德摩根定律，将每一个位反转，把每一个位并当成一个clause
+
+			//若为NotIn，根据德摩根定律将非结合进去。 ^(A | B) = ^A & ^B
 			if sign_bit == "-1" {
 				for i := 0; i < len(clauseInt); i++ {
 					clauseInt[i] = -clauseInt[i]
 				}
-				for ci := range clauseInt {
+				for _, ci := range clauseInt {
 					newClause := []int{ci}
-					formulaInt = append(formulaInt, newClause)
+					formulaIntMap = append(formulaIntMap, newClause)
 				}
+
 			}
 
 		}
 	}
 
-	formula := cnf.NewFormulaFromInts(formulaInt)
+	//获得的x1，x2与对应字符串的key，vale反转字典，用与后续定位
+	Lit2StrMap := map[int]string{}
+	for k, v := range valueName2LitMap {
+		Lit2StrMap[v] = k
+	}
 
-	return formula
+	formula := cnf.NewFormulaFromInts(formulaIntMap)
+
+	return formula, Lit2StrMap
 }
 
 func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
@@ -228,22 +189,39 @@ func CNF2Dimacs(formula cnf.Formula) dimacs.Problem {
 //求解器可替换
 //
 
-func CNFSolve(formula cnf.Formula) bool {
+func CNFSolve(formula cnf.Formula) (bool, []int) {
 	solver := sat.New()
 	//开启日志，从日志中获取信息
 	//Trace和Tracer两个参数需要设置
 	//tracer使用log的Printf
 	solver.Trace = true
-	logs := log.New(os.Stdout, "SAT solver Log:", 0)
-	solver.Tracer = logs
+	//sslogger := log.New(os.Stdout, "SAT solver Log:", 0)
+	sslogger := &SatSolverLogger{}
+	solver.Tracer = sslogger
 	solver.AddFormula(formula)
 
-	return solver.Solve()
+	ifsat := solver.Solve()
+	conflictClauseIndexs := []int{}
+	//如果有冲突，输出有冲突的标号
+	if ifsat == false {
+		conflictClauseIndexs = AnalyseLogs(sslogger.logs)
+	}
+
+	return ifsat, conflictClauseIndexs
 }
 
 func SATPodAffinity(pod template.Pod) bool {
 	strclauses := PodAffinity2StrClauses(pod)
-	problem := StrClauses2CNF(strclauses)
+	problem, clauseMap := StrClauses2CNF(strclauses)
 
-	return CNFSolve(problem)
+	ifsat, conflictClauseIndexs := CNFSolve(problem)
+	if ifsat {
+		return true
+	} else {
+		fmt.Println(clauseMap)
+		fmt.Printf(string(rune(conflictClauseIndexs[0])))
+
+		return false
+
+	}
 }

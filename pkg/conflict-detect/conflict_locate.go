@@ -1,5 +1,103 @@
 package conflict_detect
 
+import (
+	"fmt"
+	"regexp"
+	"strconv"
+)
+
 //定位冲突的位置
 //定位展示：定位出有冲突的若干个冲突对的位置
 //位置表示方法：行号+行数
+
+//SatSolverLogger是为了适配sat.Solver.Tracer接口的实现
+//将输出的log信息，保存在内存中logs里面。
+//下一步直接分析logs的内容，得到有冲突的语句
+type SatSolverLogger struct {
+	logs []string
+}
+
+func (ssl *SatSolverLogger) PrintLogs() {
+	for _, str := range ssl.logs {
+		fmt.Println(str)
+	}
+}
+
+func (ssl *SatSolverLogger) Printf(format string, v ...any) {
+
+	s := fmt.Sprintf(format, v...)
+	ssl.logs = append(ssl.logs, s)
+
+}
+
+//[TRACE] sat: addClause: single literal clause, asserting 1
+//[TRACE] sat: looking for watches for: 1
+//[TRACE] sat: registering watchers for clause [-2 -3]
+//[TRACE] sat: when 2, check -3
+//[TRACE] sat: when 3, check -2
+//[TRACE] sat: addClause: single literal clause, asserting -4
+//[TRACE] sat: looking for watches for: -4
+//[TRACE] sat: starting solve()
+//[TRACE] sat: new iteration. trail: [1, -4]
+//[TRACE] sat: assert: 2 (decision)
+//[TRACE] sat: new iteration. trail: [1, -4, | 2]
+//[TRACE] sat: looking for watches for: 2
+//[TRACE] sat: watcher: watching lit "-3" in clause [-2 -3]
+//[TRACE] sat: moving false literal -2 to position 1
+//[TRACE] sat: asserting unit literal -3 in clause [-3 -2]
+//[TRACE] sat: looking for watches for: -3
+//[TRACE] sat: solver found solution: [1 -4 2 -3]
+//
+//
+//[TRACE] sat: looking for watches for: 1
+//[TRACE] sat: registering watchers for clause [-2 -3]
+//[TRACE] sat: when 2, check -3
+//[TRACE] sat: when 3, check -2
+//[TRACE] sat: addClause: not adding literal; literal -1 false: [-1]
+
+func AnalyseLogs(logs []string) []int {
+	res := []int{}
+	for _, log := range logs {
+		index := getConflictLitIndex(log)
+		//log中存在冲突的时候，返回不为-1
+		if index != -1 {
+			res = append(res, index)
+		}
+	}
+
+	return res
+
+}
+
+//return : 返回有冲突的Lit的标号
+// return：没有相应的匹配则返回-1
+func getConflictLitIndex(log string) int {
+	//针对sat: addClause: not adding literal; literal * false: [*]
+	regstr := ".literal -*(\\d) false: \\[(-*\\d)\\]"
+	reg_false := regexp.MustCompile(regstr)
+
+	if reg_false == nil {
+		fmt.Println("regexp err")
+		return -1
+	}
+
+	//根据规则提取关键信息
+	result1 := reg_false.FindAllStringSubmatch(log, -1)
+
+	if result1 == nil {
+		return -1
+	}
+	//current 有冲突的 lit标号
+	conflictLitIndexStr := result1[0][1]
+
+	conflictLitIndex, err := strconv.Atoi(conflictLitIndexStr)
+	if err != nil {
+		fmt.Println("string output err")
+		return -1
+	}
+	return conflictLitIndex
+}
+
+//func ConflictLocate()  {
+//
+//}

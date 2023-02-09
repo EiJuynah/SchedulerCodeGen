@@ -25,7 +25,7 @@ func TestPodAffinity2Stringclause(t *testing.T) {
 }
 
 func TestStrClauses2CNF(t *testing.T) {
-	pjtpath := "E://project//"
+	pjtpath := "D://code//GO//"
 	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
@@ -44,23 +44,11 @@ func TestCNFExample(t *testing.T) {
 }
 
 func TestSATPodAffinity(t *testing.T) {
-	pjtpath := "E://project//"
+	pjtpath := "D://code//GO//"
 	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}
 	res := SATPodAffinity(*pod)
 	fmt.Println(res)
-}
-
-func TestAbaAba(t *testing.T) {
-	a := make(map[string]string)
-	a["e"] = "r"
-	a["c"] = "C"
-	a["x"] = "X"
-	for k, v := range a {
-		fmt.Println(k)
-		fmt.Println(v)
-	}
-
 }
