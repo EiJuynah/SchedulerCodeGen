@@ -21,10 +21,28 @@ func PodAffinity2StrClauses(pod template.Pod) [][][]string {
 	//
 
 	var clause [][][]string
-	//针对affinity
+	//针对PodAffinity
 	for _, require := range pod.Spec.Affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution {
 		//require.LabelSelector.MatchLabels
 		var subclause [][]string
+
+		//分析MatchLabels
+		//MatchLabel等与opt为In的MatchExpresssions,而且其中的values的数量只有一个
+		for k, v := range require.LabelSelector.MatchLabels {
+			key := k
+			values := v
+			subsubclause := []string{}
+
+			subsubclause = append(subsubclause, "1")
+
+			str := key + ":" + values
+			subsubclause = append(subsubclause, str)
+
+			subclause = append(subclause, subsubclause)
+
+		}
+
+		//分析MatchExpressions
 		for _, expression := range require.LabelSelector.MatchExpressions {
 
 			key := expression.Key
@@ -151,6 +169,7 @@ func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
 			sign_bit := matchExpression[0]
 			valueName2LitMap["sign_bit"], _ = strconv.Atoi(sign_bit)
 			//将每句MacthExpression映射
+			//从第1位开始
 			for i := 1; i < len(matchExpression); i++ {
 
 				value := matchExpression[i]
@@ -163,13 +182,21 @@ func StrClauses2CNF(strclauses [][][]string) cnf.Formula {
 			for i := 1; i < len(matchExpression); i++ {
 				clauseInt = append(clauseInt, valueName2LitMap[matchExpression[i]])
 			}
+
+			if sign_bit == "1" {
+				formulaInt = append(formulaInt, clauseInt)
+			}
+			//如果是NotIn，则按照德摩根定律，将每一个位反转，把每一个位并当成一个clause
 			if sign_bit == "-1" {
 				for i := 0; i < len(clauseInt); i++ {
 					clauseInt[i] = -clauseInt[i]
 				}
+				for ci := range clauseInt {
+					newClause := []int{ci}
+					formulaInt = append(formulaInt, newClause)
+				}
 			}
 
-			formulaInt = append(formulaInt, clauseInt)
 		}
 	}
 
