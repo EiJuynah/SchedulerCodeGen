@@ -81,6 +81,17 @@ A1 & A2 & A3 & ...
 
 ![冲突检测模块数据流图](/pic/冲突检测模块数据流图.jpg)
 
+## 冲突定位
+若一个文件有语句冲突，需要定位其文件中出现冲突的语句对的位置。
+
+冲突定位模块位于冲突检测之后。使用一个求解器运行日志存储对象去存储求解器运行时的trace，当出现冲突的时候，就会去分析求解器日志，去定位到冲突的位置。在这里冲突的位置使用label：value去输出，根据具体的使用场景去看需要展示定位的表现形式。
+
+由于使用的sat solver基于CDCL算法去进行冲突检测，如果发现有一条冲突，即刻会退出。因此从sat solver的原理来看，一次最多检测出一条冲突，若要检测多条冲突的话，则需要运行多次。
+
+在定位的范围考虑来看，考虑到了pod配置文件以及具体的使用场景。
+pod的配置文件有其特殊性。第一，一条label：value最对出现两次（in/notin），只要确定了其label：value就能确定其在文件中的位置。第二，以podaffinity为例，有出现‘非’的情况比较单一，存在在podAffinity.required...中的notin和podAntiAffinity.required...中的in。在其内部，所有的子项之间的关系都是‘或’。因此，所有的情况可以归纳为 ^(A | B | C），根据德摩根定律，等价于 ^A & ^B & ^C，都是sigle literal，而不是unit literal。
+基于以上的情况，可以推断出如果一个配置文件中有冲突，那么冲突的一定和这些sigle literal有关。这样子情况就简单了。冲突定位器只需要定位到有冲突的那几个sigle literal就可以了。
+
 ## 容错机制
 
 无
@@ -89,3 +100,7 @@ A1 & A2 & A3 & ...
 
 1. 若之后的需求中有如“CpuSet=1“类似的约束，需要重新建模，使用谓词逻辑去表达，转换成SMT。使用SMT solver去求解。
 2. 无冲突定位功能
+
+## 参考链接
+1.[Conflict-driven clause learning](https://en.wikipedia.org/wiki/Conflict-driven_clause_learning)
+2.[tutorial: Conflict Driven Clause Learning University of Washington | CSE 442](https://cse442-17f.github.io/Conflict-Driven-Clause-Learning/)

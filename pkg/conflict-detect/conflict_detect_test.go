@@ -7,7 +7,8 @@ import (
 )
 
 func TestPodAffinity2Stringclause(t *testing.T) {
-	pod, err := yaml_process.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
+	pjtpath := "E://project//"
+	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -24,26 +25,33 @@ func TestPodAffinity2Stringclause(t *testing.T) {
 }
 
 func TestStrClauses2CNF(t *testing.T) {
-	pod, err := yaml_process.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
+	pjtpath := "D://code//GO//"
+	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}
 	cp := PodAffinity2StrClauses(*pod)
 
-	a := StrClauses2CNF(cp)
+	a, fmap := StrClauses2CNF(cp)
 
 	fmt.Println(a)
-}
 
-func TestCNFExample(t *testing.T) {
-	CNFExample()
+	fmt.Println(fmap)
 }
 
 func TestSATPodAffinity(t *testing.T) {
-	pod, err := yaml_process.ReadPodYamlFile("E:\\project\\CodeGenerationGo\\files\\out.yaml")
+	pjtpath := "D://code//GO//"
+	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}
+	res, cfs := SATPodAffinity(*pod)
 
-	fmt.Println(SATPodAffinity(*pod))
+	if res {
+		fmt.Println("the result of conflict detect is : ", res)
+	} else {
+		fmt.Println("the result of conflict detect is : ", res)
+		fmt.Println("the label which maybe has conflict is :", cfs)
+	}
+
 }
