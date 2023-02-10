@@ -27,11 +27,11 @@ spec:
 #                  topologyKey: kubernetes.io/hostname
                 - labelSelector:
                     matchExpressions:
-#                        - key: app
-#                          operator: In
-#                          values:
-#                            - appc
-#                            - appd
+                        - key: app
+                          operator: In
+                          values:
+                            - appc
+                            - appd
                         - key: app
                           operator: In
                           values:
