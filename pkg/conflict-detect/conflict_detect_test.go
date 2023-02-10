@@ -39,16 +39,19 @@ func TestStrClauses2CNF(t *testing.T) {
 	fmt.Println(fmap)
 }
 
-func TestCNFExample(t *testing.T) {
-	CNFExample()
-}
-
 func TestSATPodAffinity(t *testing.T) {
 	pjtpath := "D://code//GO//"
 	pod, err := yaml_process.ReadPodYamlFile(pjtpath + "CodeGenerationGo\\files\\out.yaml")
 	if err != nil {
 		fmt.Println(err)
 	}
-	res := SATPodAffinity(*pod)
-	fmt.Println(res)
+	res, cfs := SATPodAffinity(*pod)
+
+	if res {
+		fmt.Println("the result of conflict detect is : ", res)
+	} else {
+		fmt.Println("the result of conflict detect is : ", res)
+		fmt.Println("the label which maybe has conflict is :", cfs)
+	}
+
 }

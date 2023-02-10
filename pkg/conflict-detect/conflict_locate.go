@@ -7,8 +7,8 @@ import (
 )
 
 //定位冲突的位置
-//定位展示：定位出有冲突的若干个冲突对的位置
-//位置表示方法：行号+行数
+//定位展示:定位出有冲突的若干个冲突对的位置
+//位置表示方法:行号+行数
 
 //SatSolverLogger是为了适配sat.Solver.Tracer接口的实现
 //将输出的log信息，保存在内存中logs里面。
@@ -30,31 +30,7 @@ func (ssl *SatSolverLogger) Printf(format string, v ...any) {
 
 }
 
-//[TRACE] sat: addClause: single literal clause, asserting 1
-//[TRACE] sat: looking for watches for: 1
-//[TRACE] sat: registering watchers for clause [-2 -3]
-//[TRACE] sat: when 2, check -3
-//[TRACE] sat: when 3, check -2
-//[TRACE] sat: addClause: single literal clause, asserting -4
-//[TRACE] sat: looking for watches for: -4
-//[TRACE] sat: starting solve()
-//[TRACE] sat: new iteration. trail: [1, -4]
-//[TRACE] sat: assert: 2 (decision)
-//[TRACE] sat: new iteration. trail: [1, -4, | 2]
-//[TRACE] sat: looking for watches for: 2
-//[TRACE] sat: watcher: watching lit "-3" in clause [-2 -3]
-//[TRACE] sat: moving false literal -2 to position 1
-//[TRACE] sat: asserting unit literal -3 in clause [-3 -2]
-//[TRACE] sat: looking for watches for: -3
-//[TRACE] sat: solver found solution: [1 -4 2 -3]
-//
-//
-//[TRACE] sat: looking for watches for: 1
-//[TRACE] sat: registering watchers for clause [-2 -3]
-//[TRACE] sat: when 2, check -3
-//[TRACE] sat: when 3, check -2
-//[TRACE] sat: addClause: not adding literal; literal -1 false: [-1]
-
+//扫描每一条log，输出有冲突的Lit的index
 func AnalyseLogs(logs []string) []int {
 	res := []int{}
 	for _, log := range logs {
@@ -69,8 +45,9 @@ func AnalyseLogs(logs []string) []int {
 
 }
 
+//判断该条log是否有冲突，如果有冲突，则输出有冲突的lit的index
 //return : 返回有冲突的Lit的标号
-// return：没有相应的匹配则返回-1
+// return:没有相应的匹配则返回-1
 func getConflictLitIndex(log string) int {
 	//针对sat: addClause: not adding literal; literal * false: [*]
 	regstr := ".literal -*(\\d) false: \\[(-*\\d)\\]"
@@ -98,6 +75,12 @@ func getConflictLitIndex(log string) int {
 	return conflictLitIndex
 }
 
-//func ConflictLocate()  {
-//
-//}
+func ConflictLocate(clauseMap map[int]string, conflictClauseIndexs []int) []string {
+	labelpair := []string{}
+	for _, index := range conflictClauseIndexs {
+		labelpair = append(labelpair, clauseMap[index])
+	}
+
+	return labelpair
+
+}

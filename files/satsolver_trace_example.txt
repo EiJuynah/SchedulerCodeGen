@@ -1,0 +1,24 @@
+//[TRACE] sat: addClause: single literal clause, asserting 1
+//[TRACE] sat: looking for watches for: 1
+//[TRACE] sat: registering watchers for clause [-2 -3]
+//[TRACE] sat: when 2, check -3
+//[TRACE] sat: when 3, check -2
+//[TRACE] sat: addClause: single literal clause, asserting -4
+//[TRACE] sat: looking for watches for: -4
+//[TRACE] sat: starting solve()
+//[TRACE] sat: new iteration. trail: [1, -4]
+//[TRACE] sat: assert: 2 (decision)
+//[TRACE] sat: new iteration. trail: [1, -4, | 2]
+//[TRACE] sat: looking for watches for: 2
+//[TRACE] sat: watcher: watching lit "-3" in clause [-2 -3]
+//[TRACE] sat: moving false literal -2 to position 1
+//[TRACE] sat: asserting unit literal -3 in clause [-3 -2]
+//[TRACE] sat: looking for watches for: -3
+//[TRACE] sat: solver found solution: [1 -4 2 -3]
+//
+//
+//[TRACE] sat: looking for watches for: 1
+//[TRACE] sat: registering watchers for clause [-2 -3]
+//[TRACE] sat: when 2, check -3
+//[TRACE] sat: when 3, check -2
+//[TRACE] sat: addClause: not adding literal; literal -1 false: [-1]

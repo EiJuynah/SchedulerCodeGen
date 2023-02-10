@@ -2,7 +2,6 @@ package conflict_detect
 
 import (
 	"CodeGenerationGo/pkg/template"
-	"fmt"
 	"github.com/mitchellh/go-sat"
 	"github.com/mitchellh/go-sat/cnf"
 	"github.com/mitchellh/go-sat/dimacs"
@@ -210,18 +209,18 @@ func CNFSolve(formula cnf.Formula) (bool, []int) {
 	return ifsat, conflictClauseIndexs
 }
 
-func SATPodAffinity(pod template.Pod) bool {
+func SATPodAffinity(pod template.Pod) (bool, []string) {
 	strclauses := PodAffinity2StrClauses(pod)
 	problem, clauseMap := StrClauses2CNF(strclauses)
 
 	ifsat, conflictClauseIndexs := CNFSolve(problem)
 	if ifsat {
-		return true
+		return true, nil
 	} else {
-		fmt.Println(clauseMap)
-		fmt.Printf(string(rune(conflictClauseIndexs[0])))
+		//fmt.Println(clauseMap)
+		conflictlabels := ConflictLocate(clauseMap, conflictClauseIndexs)
 
-		return false
+		return false, conflictlabels
 
 	}
 }
